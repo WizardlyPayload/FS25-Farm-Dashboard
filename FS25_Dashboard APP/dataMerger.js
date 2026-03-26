@@ -1,4 +1,4 @@
-// FS25 FarmDashboard | dataMerger.js | v1.0.8
+// FS25 FarmDashboard | dataMerger.js | v1.0.0
 
 /**
  * dataMerger.js  —  Merge Lua live data + XML savegame data
@@ -310,24 +310,6 @@ function mergeFields(xmlFields, luaFields) {
             growthStatePercentage : (luaPct != null && luaPct !== '') ? luaPct : xmlField.growthStatePercentage,
         };
     });
-
-    // #region agent log
-    try {
-        const mulchedCount = merged.filter(f => f.isMulched).length;
-        fetch('http://127.0.0.1:7644/ingest/043a7370-ef1e-42a5-ab66-dd3f73761c15', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '836a0f' },
-            body: JSON.stringify({
-                sessionId: '836a0f',
-                location: 'dataMerger.js:mergeFields',
-                message: 'field mulch merge summary',
-                data: { mulchedCount, totalFields: merged.length },
-                timestamp: Date.now(),
-                hypothesisId: 'M1',
-            }),
-        }).catch(() => {});
-    } catch (_) { /* ignore */ }
-    // #endregion
 
     return merged;
 }

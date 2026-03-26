@@ -1,6 +1,6 @@
 {
   "name": "fs25-farm-dashboard",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "Real-time Farm Management Dashboard for FS25",
   "main": "main.js",
   "scripts": {

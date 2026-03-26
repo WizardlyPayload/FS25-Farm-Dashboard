@@ -11,6 +11,8 @@ First public release for wider testing.
 
 **Install order:** mod → enable & load save → then install/run the desktop app. See [README.md](README.md).
 
+**Repository:** https://github.com/WizardlyPayload/FS25-Farm-Dashboard
+
 ## Suggested release assets
 
 - `FS25 Farm Dashboard Setup x.x.x.exe` from `FS25_Dashboard APP/release/` after `npm run dist`

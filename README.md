@@ -2,10 +2,11 @@
 
 Real-time farm management dashboard for **Farming Simulator 25**: an **Electron** desktop app plus an in-game **mod** that exports live data (fields, vehicles, animals, economy, productions, and more) to a browser UI on your PC. Works with local saves or dedicated servers (including FTP).
 
-This repository is the project you clone in **GitHub Desktop** — open the folder  
-`FS25-Farm-Dashboard` on your machine after cloning.
+**GitHub:** [github.com/WizardlyPayload/FS25-Farm-Dashboard](https://github.com/WizardlyPayload/FS25-Farm-Dashboard)
 
-**Release:** **1.0.0** (see [RELEASE_NOTES.md](RELEASE_NOTES.md)).
+Clone in **GitHub Desktop** and open the **`FS25-Farm-Dashboard`** folder on your machine.
+
+**Release:** **1.0.0** (see [RELEASE_NOTES.md](RELEASE_NOTES.md) · [Releases](https://github.com/WizardlyPayload/FS25-Farm-Dashboard/releases)).
 
 ---
 
@@ -22,7 +23,7 @@ This repository is the project you clone in **GitHub Desktop** — open the fold
 
 1. **Install the mod** — copy **`FS25_Dashboard MOD`** into FS25 mods so the game sees the mod (folder name must match how you package it, e.g. `FS25_FarmDashboard`).
 2. **Run FS25**, enable the mod on your save (or server), and **load the save at least once** so the mod creates its output (`data.json` under `modSettings/FS25_FarmDashboard/…`).
-3. **Install the desktop app** — run the **Windows `.exe`** installer from [Releases](https://github.com) *(link your published release here)*.
+3. **Install the desktop app** — run the **Windows `.exe`** from [**Releases**](https://github.com/WizardlyPayload/FS25-Farm-Dashboard/releases) when published, or build locally (`npm run dist`).
 4. Open the app and complete **Setup** (local paths or **FTP** for hosted servers).
 
 Installing the app before the mod has run at least once can make first-time setup harder because folders or `data.json` may not exist yet.
@@ -41,7 +42,7 @@ Enable it in the game mod list for your save or dedicated server.
 
 ## Desktop app install
 
-- Use the **NSIS installer** built from this repo (`npm run dist`), or download the **`.exe`** from GitHub **Releases** when published.
+- Use the **NSIS installer** from [**Releases**](https://github.com/WizardlyPayload/FS25-Farm-Dashboard/releases), or build with `npm run dist` in `FS25_Dashboard APP`.
 - After install, launch **FS25 Farm Dashboard** and use **http://localhost:8766** in your browser (unless you change the port).
 
 ---

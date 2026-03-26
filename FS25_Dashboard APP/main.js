@@ -1,4 +1,4 @@
-// FS25 FarmDashboard | main.js | v1.0.3
+// FS25 FarmDashboard | main.js | v1.0.0
 // Electron main: Express + WS on 8766, chokidar/FTP → mergeData → renderer.
 
 const { app, BrowserWindow, ipcMain } = require('electron');

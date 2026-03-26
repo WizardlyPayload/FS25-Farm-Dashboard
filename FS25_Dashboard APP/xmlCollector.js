@@ -1,4 +1,4 @@
-// FS25 FarmDashboard | xmlCollector.js | v1.0.3
+// FS25 FarmDashboard | xmlCollector.js | v1.0.0
 
 /**
  * xmlCollector.js  —  FS25 Savegame XML Reader

@@ -1,4 +1,4 @@
-// FS25 FarmDashboard | realtime-connector.js | v1.0.3
+// FS25 FarmDashboard | realtime-connector.js | v1.0.0
 
 /** Set true only when diagnosing livestock change notifications */
 const VERBOSE_CHANGE_LOG = false;

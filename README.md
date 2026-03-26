@@ -1,2 +1,98 @@
-# FS25-Farm-Dahsboard
-a fork of JoshWalki's farm dashboard running in an electron app 
+# FS25 Farm Dashboard
+
+Real-time farm management dashboard for **Farming Simulator 25**: an **Electron** desktop app plus an in-game **mod** that exports live data (fields, vehicles, animals, economy, productions, and more) to a browser UI on your PC. Works with local saves or dedicated servers (including FTP).
+
+This repository is the project you clone in **GitHub Desktop** — open the folder  
+`FS25-Farm-Dashboard` on your machine after cloning.
+
+**Release:** **1.0.0** (see [RELEASE_NOTES.md](RELEASE_NOTES.md)).
+
+---
+
+## Repository layout
+
+| Folder | Contents |
+|--------|----------|
+| **`FS25_Dashboard APP`** | Electron app (Node), web UI, API on port **8766** by default |
+| **`FS25_Dashboard MOD`** | FS25 mod (Lua) — copy into the game `mods` directory |
+
+---
+
+## Install order (for end users)
+
+1. **Install the mod** — copy **`FS25_Dashboard MOD`** into FS25 mods so the game sees the mod (folder name must match how you package it, e.g. `FS25_FarmDashboard`).
+2. **Run FS25**, enable the mod on your save (or server), and **load the save at least once** so the mod creates its output (`data.json` under `modSettings/FS25_FarmDashboard/…`).
+3. **Install the desktop app** — run the **Windows `.exe`** installer from [Releases](https://github.com) *(link your published release here)*.
+4. Open the app and complete **Setup** (local paths or **FTP** for hosted servers).
+
+Installing the app before the mod has run at least once can make first-time setup harder because folders or `data.json` may not exist yet.
+
+---
+
+## Mod install (Windows, typical)
+
+Copy the mod folder into:
+
+`Documents\My Games\FarmingSimulator2025\mods\`
+
+Enable it in the game mod list for your save or dedicated server.
+
+---
+
+## Desktop app install
+
+- Use the **NSIS installer** built from this repo (`npm run dist`), or download the **`.exe`** from GitHub **Releases** when published.
+- After install, launch **FS25 Farm Dashboard** and use **http://localhost:8766** in your browser (unless you change the port).
+
+---
+
+## Build from source (developers)
+
+Prerequisites: **Node.js LTS**, **npm**, Windows (for the current NSIS target).
+
+```powershell
+cd "FS25_Dashboard APP"
+npm install
+npm run dist
+```
+
+Installer output: **`FS25_Dashboard APP`** → **`release/`**.
+
+Run without packaging:
+
+```powershell
+cd "FS25_Dashboard APP"
+npm start
+```
+
+---
+
+## GitHub Desktop workflow
+
+1. **Clone** this repository in GitHub Desktop (or **File → Add local repository** if this folder is already a clone).
+2. Commit changes with a clear message → **Push origin**.
+3. **Releases:** create a tag (e.g. `v1.0.0`), upload the **installer `.exe`** and a **zip of the mod folder** for players who don’t build from source.
+
+Do **not** commit `node_modules/` — use `.gitignore` (included).
+
+---
+
+## Troubleshooting
+
+| Issue | Try |
+|--------|-----|
+| Dashboard waits for data | Confirm FS25 ran with the mod enabled; check Setup paths or FTP. |
+| Nothing via FTP | Check host, credentials, and paths (`profile`, savegame slot). |
+| Port 8766 in use | Close the other app using the port or restart after closing old instances. |
+
+---
+
+## Credits
+
+Based on **JoshWalki**’s Farm Dashboard concept; this fork runs the stack in an Electron app. See `FS25_Dashboard MOD/modDesc.xml` for author credits.
+
+---
+
+## License
+
+Add a `LICENSE` file if you want explicit terms; until then, rights remain with the authors unless stated otherwise.

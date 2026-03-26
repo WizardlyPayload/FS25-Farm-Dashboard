@@ -1,11 +1,37 @@
+// FS25 FarmDashboard | navigation.js | v1.0.0
+
 export function setupEventListeners() {
   const folderInput = document.getElementById("folder-input");
   const clearFolderBtn = document.getElementById("clear-folder-btn");
 
-  folderInput.addEventListener("change", (e) =>
-    this.handleFolderSelection(e)
-  );
-  clearFolderBtn.addEventListener("click", () => this.clearSavedData());
+  if (folderInput) {
+    folderInput.addEventListener("change", (e) =>
+      this.handleFolderSelection(e)
+    );
+  }
+  if (clearFolderBtn) {
+    clearFolderBtn.addEventListener("click", () => this.clearSavedData());
+  }
+
+  const navSettingsBtn = document.getElementById("nav-settings-btn");
+  if (navSettingsBtn) {
+    navSettingsBtn.addEventListener("click", () => this.openSetup());
+  }
+  const navHomeBtn = document.getElementById("nav-home-btn");
+  if (navHomeBtn) {
+    navHomeBtn.addEventListener("click", () => this.showLanding());
+  }
+  const folderErrorBackBtn = document.getElementById("folder-error-back-home-btn");
+  if (folderErrorBackBtn) {
+    folderErrorBackBtn.addEventListener("click", () => this.openSetup());
+  }
+  const folderErrorBackLink = document.getElementById("folder-error-back-home-link");
+  if (folderErrorBackLink) {
+    folderErrorBackLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      this.openSetup();
+    });
+  }
 
   // Notification history event listeners
   const clearNotificationsBtn = document.getElementById(
@@ -41,7 +67,11 @@ export function setupURLRouting() {
 }
 
 export function handleHashChange() {
-  const hash = window.location.hash.substring(1); // Remove the # symbol
+  let hash = window.location.hash.substring(1); // Remove the # symbol
+  if (hash === "statistics") {
+    hash = "productions";
+    window.history.replaceState(null, null, "#productions");
+  }
 
   // Check if any data has been loaded (either from API or saved folder)
   if (!this.isDataLoaded && !this.savedFolderData) {
@@ -57,7 +87,7 @@ export function handleHashChange() {
       "fields",
       "economy",
       "pastures",
-      "statistics",
+      "productions",
     ];
     if (validSections.includes(hash)) {
       this.showSection(hash);
@@ -94,9 +124,12 @@ export function updateNavbar() {
   const homeButton = document.getElementById("nav-home-btn");
   const gameTimeElement = document.getElementById("navbar-game-time");
 
+  if (!sectionTitleElement || !homeButton) return;
+
   // Update section title and show/hide home button
   switch (currentSection) {
     case "landing":
+    case "dashboard":
       sectionTitleElement.textContent = "Farm Dashboard";
       homeButton.classList.add("d-none");
       break;
@@ -104,8 +137,24 @@ export function updateNavbar() {
       sectionTitleElement.textContent = "Livestock Management";
       homeButton.classList.remove("d-none");
       break;
-    case "other-section":
-      sectionTitleElement.textContent = "Farm Management";
+    case "vehicles":
+      sectionTitleElement.textContent = "Vehicle Management";
+      homeButton.classList.remove("d-none");
+      break;
+    case "fields":
+      sectionTitleElement.textContent = "Field Management";
+      homeButton.classList.remove("d-none");
+      break;
+    case "economy":
+      sectionTitleElement.textContent = "Economy";
+      homeButton.classList.remove("d-none");
+      break;
+    case "pastures":
+      sectionTitleElement.textContent = "Pasture Management";
+      homeButton.classList.remove("d-none");
+      break;
+    case "productions":
+      sectionTitleElement.textContent = "Productions";
       homeButton.classList.remove("d-none");
       break;
     default:
@@ -114,9 +163,10 @@ export function updateNavbar() {
   }
 
   // Update game time in navbar
+  if (!gameTimeElement) return;
   if (this.gameTime) {
     const timeSpan = gameTimeElement.querySelector("span");
-    timeSpan.textContent = this.getGameTimeDisplay();
+    if (timeSpan) timeSpan.textContent = this.getGameTimeDisplay();
     gameTimeElement.classList.remove("d-none");
   } else {
     gameTimeElement.classList.add("d-none");
@@ -124,20 +174,10 @@ export function updateNavbar() {
 }
 
 export function getCurrentSection() {
-  if (!document.getElementById("landing-page").classList.contains("d-none")) {
-    return "landing";
-  }
-  if (
-    !document.getElementById("dashboard-content").classList.contains("d-none")
-  ) {
-    return "livestock";
-  }
-  if (
-    !document.getElementById("section-content").classList.contains("d-none")
-  ) {
-    return "other-section";
-  }
-  return null;
+  // Return the tracked section set by showSection() / showLanding().
+  // Previously this inspected DOM visibility and returned hardcoded strings
+  // ("livestock", "other-section") which broke farm-switching and navbar logic.
+  return this.currentSection || "landing";
 }
 
 export function showInfoMessage(message) {
@@ -261,17 +301,17 @@ export function updateLandingPageCounts() {
   if (pastureCountElement) {
     // Always refresh pasture data to get current warnings and counts
     this.parsePastureData();
-    pastureCountElement.textContent = `${
-      this.pastures ? this.pastures.length : 0
-    } Pastures`;
+    const pasturesForFarm =
+      typeof this.getPasturesForActiveFarm === "function"
+        ? this.getPasturesForActiveFarm()
+        : this.pastures || [];
+    pastureCountElement.textContent = `${pasturesForFarm.length} Pastures`;
 
     // Update warning badge on dashboard
-    const totalAllWarnings = this.pastures
-      ? this.pastures.reduce(
-          (sum, pasture) => sum + pasture.allWarnings.length,
-          0
-        )
-      : 0;
+    const totalAllWarnings = pasturesForFarm.reduce(
+      (sum, pasture) => sum + (pasture.allWarnings?.length || 0),
+      0
+    );
     const warningBadge = document.getElementById("pasture-warnings-badge");
     const warningCount = document.getElementById("pasture-warnings-count");
     if (warningBadge && warningCount) {
@@ -282,6 +322,12 @@ export function updateLandingPageCounts() {
         warningBadge.classList.add("d-none");
       }
     }
+  }
+
+  const productionCountEl = document.getElementById("production-count");
+  if (productionCountEl && typeof this.getOwnedProductionChainCount === "function") {
+    const n = this.getOwnedProductionChainCount();
+    productionCountEl.textContent = `${n} ${n === 1 ? "Chain" : "Chains"}`;
   }
 }
 
@@ -332,8 +378,8 @@ export function showSection(sectionName) {
     case "pastures":
       this.showPasturesSection();
       break;
-    case "statistics":
-      this.showStatisticsSection();
+    case "productions":
+      this.showProductionsSection();
       break;
     default:
       document.getElementById("section-content").innerHTML = `
@@ -348,6 +394,7 @@ export function showSection(sectionName) {
   // Update navbar after section change
   this.updateNavbar();
 }
+
 
 export function showFarmSelectionModal() {
   const farmList = document.getElementById("farm-selection-list");

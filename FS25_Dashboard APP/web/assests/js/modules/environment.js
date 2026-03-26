@@ -1,3 +1,5 @@
+// FS25 FarmDashboard | environment.js | v1.0.0
+
 export function formatGameTime(dayTimeMinutes) {
   const hours = Math.floor(dayTimeMinutes / 60);
   const minutes = Math.floor(dayTimeMinutes % 60);
@@ -45,6 +47,33 @@ export function updateGameTimeDisplay() {
     navbarGameTime.innerHTML = `<i class="bi bi-clock me-1"></i><span>${this.getGameTimeDisplay()}</span>`;
     navbarGameTime.classList.remove("d-none");
   }
+
+  // Update data source badge
+  const dsBadge = document.getElementById("navbar-datasource");
+  const dsText  = document.getElementById("navbar-datasource-text");
+  if (dsBadge && dsText) {
+    const src = this.dataSource || 'unknown';
+    const labels = {
+      merged:   'XML + Live',
+      xml_only: 'XML Only',
+      lua_only: 'Live Only',
+      unknown:  'Connecting...'
+    };
+    dsText.textContent = labels[src] || src;
+    dsBadge.className = 'badge text-light ms-2';
+    if (src === 'merged')   dsBadge.classList.add('bg-success');
+    else if (src === 'xml_only') dsBadge.classList.add('bg-warning', 'text-dark');
+    else if (src === 'lua_only') dsBadge.classList.add('bg-info');
+    else                    dsBadge.classList.add('bg-secondary');
+    dsBadge.classList.remove('d-none');
+  }
+
+  // Update navbar section title with map name if available
+  const sectionTitle = document.getElementById("navbar-section-title");
+  if (sectionTitle && this.mapTitle && sectionTitle.textContent === 'Farm Dashboard') {
+    sectionTitle.textContent = this.mapTitle;
+  }
+
   this.updateWeatherDisplay();
 }
 

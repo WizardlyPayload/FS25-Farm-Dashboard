@@ -1,3 +1,5 @@
+// FS25 FarmDashboard | changes.js | v1.0.0
+
 export function storeDataForComparison() {
   // Store current data state for comparison after refresh - deep copy to prevent reference issues
   this.preRefreshData = {

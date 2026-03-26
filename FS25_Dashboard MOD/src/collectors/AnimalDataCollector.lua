@@ -1,3 +1,5 @@
+-- FS25 FarmDashboard | AnimalDataCollector.lua | v1.0.0
+
 AnimalDataCollector = {}
 
 function AnimalDataCollector:init()

@@ -1,7 +1,11 @@
+// FS25 FarmDashboard | apiStorage.js | v1.0.1
+
 /**
  * API & Storage Module
  * Handles all data fetching and Multi-Server state management
  */
+
+import { filterFieldsForFarmView } from './fields.js';
 
 const originalFetch = window.fetch;
 window.fetch = async function() {
@@ -39,13 +43,21 @@ export function getAPIBaseURL() {
   return "http://127.0.0.1:8766";
 }
 
+/** Dedicated server (FTP) — multiple farms; local PC saves hide farm switcher. */
+export function isFarmDropdownEnabled() {
+    const srv = (this.availableServers || []).find(s => s.id === this.activeServerId);
+    return !!(srv && srv.mode === 'ftp');
+}
+
 export async function loadServersAndTabs() {
+    this.availableServers = [];
     try {
         const apiBaseURL = this.getAPIBaseURL();
         const response = await originalFetch(`${apiBaseURL}/api/servers`);
         
         if (response.ok) {
             this.availableServers = await response.json();
+            if (!Array.isArray(this.availableServers)) this.availableServers = [];
             if (this.availableServers.length > 0) {
                 const savedServerId = localStorage.getItem('dashboard_active_server');
                 if (savedServerId && this.availableServers.find(s => s.id === savedServerId)) {
@@ -56,6 +68,7 @@ export async function loadServersAndTabs() {
                 }
                 this.renderServerTabs();
             } else {
+                this.activeServerId = undefined;
                 const container = document.getElementById("server-tabs-container");
                 if(container) container.innerHTML = '<span class="badge bg-danger">No Servers Found</span>';
             }
@@ -106,12 +119,53 @@ export async function checkAPIAvailability() {
         document.getElementById("landing-page").classList.remove("d-none");
         document.getElementById("main-navbar").classList.remove("d-none");
         if (this.updateLandingPageCounts) this.updateLandingPageCounts();
+        if (this.updateNavbar) this.updateNavbar();
+        if (window.location.hash) this.handleHashChange();
+        return;
+      }
+      // API is online but no server in config — still show the app (Settings / Home to fix)
+      if (!this.activeServerId) {
+        this.applyEmptyApiState();
+        this.isDataLoaded = true;
+        document.getElementById("folder-selection").classList.add("d-none");
+        document.getElementById("landing-page").classList.remove("d-none");
+        document.getElementById("main-navbar").classList.remove("d-none");
+        if (this.updateLandingPageCounts) this.updateLandingPageCounts();
+        if (this.updateNavbar) this.updateNavbar();
+        if (this.showAlert) {
+          this.showAlert(
+            "No server configured. Use Settings (gear) or Back to Home to add a server and local saves.",
+            "warning"
+          );
+        }
         if (window.location.hash) this.handleHashChange();
         return;
       }
     }
   } catch (error) {}
   this.loadSavedFolder();
+}
+
+export function applyEmptyApiState() {
+  this.vehicles = [];
+  this.economy = {};
+  this.finance = {};
+  this.weather = {};
+  this.production = {};
+  this.pastures = [];
+  this.mapTitle = null;
+  this.savegameName = null;
+  this.dataSource = "unknown";
+  this.xmlAvailable = false;
+  this.luaAvailable = false;
+  this.money = 0;
+  this.gameSettings = {};
+  this.farms = [];
+  this.allFields = [];
+  this.fields = [];
+  this.animals = [];
+  if (this.activeFarmId == null) this.activeFarmId = 1;
+  this.renderFarmDropdown();
 }
 
 export async function tryLoadApiData() {
@@ -121,19 +175,38 @@ export async function tryLoadApiData() {
     const response = await fetch(`${apiBaseURL}/api/data`);
     if (response.ok) {
       const data = await response.json();
-      if (data.error) return true; 
+      if (data.error) {
+        const errMsg = typeof data.error === "string" ? data.error : String(data.error || "");
+        const waiting =
+          errMsg === "Waiting for data..." || /waiting\s+for\s+data/i.test(errMsg);
+        if (waiting) {
+          this.applyEmptyApiState();
+          return true;
+        }
+        return false;
+      }
 
-      this.fields = data.fields || [];
       this.vehicles = data.vehicles || [];
       this.economy = data.economy || {};
       this.finance = data.finance || {};
       this.weather = data.weather || {};
       this.production = data.production || {};
       this.pastures = data.pastures || [];
+      // Merged data top-level fields
+      this.mapTitle      = data.mapTitle      || null;
+      this.savegameName  = data.savegameName  || null;
+      this.dataSource    = data.dataSource    || 'unknown';
+      this.xmlAvailable  = data.xmlAvailable  || false;
+      this.luaAvailable  = data.luaAvailable  || false;
+      this.money         = data.money         || 0;
+      this.gameSettings  = data.gameSettings  || {};
       
       this.farms = data.farmInfo || [];
-      let savedFarmId = localStorage.getItem(`dashboard_active_farm_${this.activeServerId}`);
-      if (savedFarmId && this.farms.find(f => f.id === parseInt(savedFarmId))) {
+      const mpFarmSwitch = this.isFarmDropdownEnabled();
+      let savedFarmId = mpFarmSwitch
+          ? localStorage.getItem(`dashboard_active_farm_${this.activeServerId}`)
+          : null;
+      if (mpFarmSwitch && savedFarmId && this.farms.find(f => f.id === parseInt(savedFarmId))) {
           this.activeFarmId = parseInt(savedFarmId);
       } else if (this.farms.length > 0) {
           const defaultFarm = this.farms.find(f => f.id > 0) || this.farms[0];
@@ -141,10 +214,25 @@ export async function tryLoadApiData() {
       }
       this.renderFarmDropdown();
 
+      this.allFields = data.fields || [];
+      this.fields = filterFieldsForFarmView(this.allFields, this.activeFarmId ?? 1);
+
       if (data.animals && Array.isArray(data.animals) && data.animals.length > 0) {
         const allAnimals = [];
         data.animals.forEach((building) => {
-          if (building.animals && Array.isArray(building.animals)) allAnimals.push(...building.animals);
+          if (!building.animals || !Array.isArray(building.animals)) return;
+          const ownerFarmId = building.ownerFarmId ?? building.farmId;
+          const hid = building.id ?? building.buildingId;
+          const hname = building.name;
+          building.animals.forEach((animal) => {
+            allAnimals.push({
+              ...animal,
+              ownerFarmId: animal.ownerFarmId ?? ownerFarmId,
+              farmId: animal.farmId ?? ownerFarmId,
+              husbandryId: animal.husbandryId ?? hid,
+              husbandryName: animal.husbandryName ?? hname,
+            });
+          });
         });
         const uniqueAnimals = [];
         const seenIds = new Set();
@@ -181,7 +269,8 @@ export function deleteStorage(key) {
 export function clearSavedData() {
   if (confirm("Are you sure you want to clear the saved folder data?")) {
     this.deleteStorage("livestockFolderData");
-    document.getElementById("folder-path").textContent = "No folder selected";
+    const pathEl = document.getElementById("folder-path");
+    if (pathEl) pathEl.textContent = "No folder selected";
     const clearBtn = document.getElementById("clear-folder-btn");
     if (clearBtn) clearBtn.classList.add("d-none");
     document.getElementById("folder-selection").classList.remove("d-none");
@@ -196,8 +285,10 @@ export function clearSavedData() {
 export function unloadData() {
   if (confirm("Are you sure you want to unload all farm data?")) {
     this.deleteStorage("livestockFolderData");
-    document.getElementById("folder-path").textContent = "No folder selected";
-    document.getElementById("clear-folder-btn").classList.add("d-none");
+    const pathEl = document.getElementById("folder-path");
+    if (pathEl) pathEl.textContent = "No folder selected";
+    const clearBtn = document.getElementById("clear-folder-btn");
+    if (clearBtn) clearBtn.classList.add("d-none");
     document.getElementById("main-navbar").classList.add("d-none");
     document.getElementById("folder-selection").classList.remove("d-none");
     document.getElementById("landing-page").classList.add("d-none");
@@ -219,7 +310,7 @@ export function confirmRefreshData(useFiles) {
   if (useFiles) {
     this.storeDataForComparison();
     this.isRefreshing = true;
-    document.getElementById("folder-input").click();
+    document.getElementById("folder-input")?.click();
   } else {
     this.storeDataForComparison();
     const currentSection = this.getCurrentSection();
@@ -252,7 +343,8 @@ export async function loadSavedFolder() {
           if (this.savedFolderData.environmentData) this.parseEnvironmentData(this.savedFolderData.environmentData);
           this.showDashboard();
         }
-        document.getElementById("clear-folder-btn").classList.remove("d-none");
+        const clearBtn = document.getElementById("clear-folder-btn");
+        if (clearBtn) clearBtn.classList.remove("d-none");
         this.showNavbar();
       }
     } catch (error) { this.deleteStorage("livestockFolderData"); }
@@ -267,7 +359,8 @@ export async function handleFolderSelection(event) {
   const environmentFile = files.find((file) => file.name === "environment.xml");
   if (!animalSystemFile) { alert("animalSystem.xml not found."); return; }
   const folderName = animalSystemFile.webkitRelativePath.split("/")[0];
-  document.getElementById("folder-path").textContent = folderName;
+  const pathEl = document.getElementById("folder-path");
+  if (pathEl) pathEl.textContent = folderName;
   try {
     const xmlContent = await this.readFileAsText(animalSystemFile);
     let placeablesContent = placeablesFile ? await this.readFileAsText(placeablesFile) : null;
@@ -284,7 +377,8 @@ export async function handleFolderSelection(event) {
       if (environmentContent) this.parseEnvironmentData(environmentContent);
       if (!wasRefreshing) this.showDashboard();
     }
-    document.getElementById("clear-folder-btn").classList.remove("d-none");
+    const clearBtnPick = document.getElementById("clear-folder-btn");
+    if (clearBtnPick) clearBtnPick.classList.remove("d-none");
     this.showNavbar();
     if (wasRefreshing) {
       this.updateLandingPageCounts();
@@ -306,7 +400,14 @@ export function readFileAsText(file) {
 
 export function renderFarmDropdown() {
     const container = document.getElementById("farm-dropdown-container");
-    if (!container || !this.farms || this.farms.length === 0) return;
+    if (!container) return;
+    if (!this.isFarmDropdownEnabled()) {
+        container.innerHTML = "";
+        container.classList.remove("d-flex");
+        container.classList.add("d-none");
+        return;
+    }
+    if (!this.farms || this.farms.length === 0) return;
     const playerFarms = this.farms.filter(f => f.id > 0);
     if (playerFarms.length === 0) {
         container.classList.remove("d-flex"); container.classList.add("d-none"); return;
@@ -329,11 +430,20 @@ export function renderFarmDropdown() {
 }
 
 export function switchFarm(farmId, event) {
+    if (!this.isFarmDropdownEnabled()) return;
     if (event) event.preventDefault();
     if (this.activeFarmId === farmId) return;
     this.activeFarmId = farmId;
     localStorage.setItem(`dashboard_active_farm_${this.activeServerId}`, farmId);
     this.renderFarmDropdown();
+
+    if (this.realtimeConnector?.updateAnimalsData && this.husbandryData) {
+        this.realtimeConnector.updateAnimalsData(this.husbandryData);
+    }
+
+    if (this.allFields && this.allFields.length) {
+        this.fields = filterFieldsForFarmView(this.allFields, farmId);
+    }
 
     const sectionContent = document.getElementById("section-content");
     const dashboardContent = document.getElementById("dashboard-content");
@@ -357,4 +467,20 @@ export function switchFarm(farmId, event) {
             if (dashboardContent) { dashboardContent.style.transition = ''; dashboardContent.style.opacity = ''; }
         }, 150);
     }, 150);
+}
+export function openSetup() {
+  if (typeof window.electronAPI?.openSetup === "function") {
+    window.electronAPI.openSetup();
+    return;
+  }
+  try {
+    const { ipcRenderer } = require("electron");
+    if (ipcRenderer && typeof ipcRenderer.send === "function") {
+      ipcRenderer.send("open-setup");
+      return;
+    }
+  } catch (e) {
+    /* not in Electron renderer */
+  }
+  window.location.href = "/setup.html";
 }

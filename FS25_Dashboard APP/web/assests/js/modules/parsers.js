@@ -1,3 +1,5 @@
+// FS25 FarmDashboard | parsers.js | v1.0.0
+
 export function parseFarmsData(xmlContent) {
   const parser = new DOMParser();
   const xmlDoc = parser.parseFromString(xmlContent, "text/xml");

@@ -1,3 +1,5 @@
+// FS25 FarmDashboard | economy.js | v1.0.0
+
 export function showEconomySection() {
   const economyHTML = `
           <div class="row mb-4">
@@ -339,6 +341,14 @@ export function updateMarketPrices(economyData) {
   
   // Fallback to old structure
   console.log("[Economy] fillTypePrices keys:", economyData.fillTypePrices ? Object.keys(economyData.fillTypePrices) : "none");
+
+  // Handle XML-only economy (no sell points yet, just price history)
+  if (economyData.source === 'xml' || (!economyData.fillTypePrices && !economyData.marketPrices)) {
+    if (economyData.fillTypePrices && Object.keys(economyData.fillTypePrices).length > 0) {
+      this.displayXmlOnlyPrices(economyData.fillTypePrices);
+      return;
+    }
+  }
 
   if (
     !economyData.fillTypePrices ||
@@ -1098,4 +1108,95 @@ export function searchCrops(searchTerm) {
       card.style.display = "none";
     }
   });
+}
+export function displayXmlOnlyPrices(fillTypePrices) {
+  const marketContainer = document.getElementById('market-prices');
+  if (!marketContainer) return;
+
+  const periods = [
+    'EARLY_SPRING','MID_SPRING','LATE_SPRING',
+    'EARLY_SUMMER','MID_SUMMER','LATE_SUMMER',
+    'EARLY_AUTUMN','MID_AUTUMN','LATE_AUTUMN',
+    'EARLY_WINTER','MID_WINTER','LATE_WINTER'
+  ];
+
+  // Group into categories
+  const crops = {};
+  const others = {};
+  const cropNames = ['WHEAT','BARLEY','OAT','CANOLA','SORGHUM','CORN','MAIZE','SUNFLOWER','SOYBEAN',
+    'POTATO','SUGARBEET','COTTON','RICE','CARROT','PARSNIP','BEETROOT','SPINACH','GREEN_BEANS'];
+
+  Object.entries(fillTypePrices).forEach(([name, data]) => {
+    if (cropNames.includes(name)) crops[name] = data;
+    else if (data.avgPrice > 0) others[name] = data;
+  });
+
+  let html = '<div class="alert alert-info mb-4"><i class="bi bi-info-circle me-2"></i>Showing <strong>historical price data from save file</strong>. Live sell point prices will appear once the Lua mod is running.</div>';
+  html += '<div class="row">';
+
+  const renderGroup = (title, icon, items) => {
+    if (!Object.keys(items).length) return;
+    html += `<div class="col-12 mb-3"><h5><i class="bi ${icon} me-2"></i>${title}</h5></div>`;
+    Object.entries(items).sort((a,b) => a[0].localeCompare(b[0])).forEach(([name, data]) => {
+      if (!data.priceHistory || !data.avgPrice) return;
+      const formatted = name.replace(/_/g,' ').toLowerCase().replace(/\w/g, c => c.toUpperCase());
+      const history = periods.map(p => data.priceHistory[p] || 0);
+      const min = Math.min(...history.filter(v => v > 0));
+      const max = Math.max(...history);
+      html += `
+        <div class="col-md-4 col-lg-3 mb-3">
+          <div class="card bg-secondary h-100">
+            <div class="card-body p-3">
+              <h6 class="card-title text-farm-accent mb-2">${formatted}</h6>
+              <div class="d-flex justify-content-between mb-1">
+                <small class="text-muted">Avg</small>
+                <strong class="text-success">\$${data.avgPrice}</strong>
+              </div>
+              <div class="d-flex justify-content-between">
+                <small class="text-muted">Range</small>
+                <small class="text-warning">\$${min} – \$${max}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+  };
+
+  renderGroup('Crops', 'bi-flower1', crops);
+  renderGroup('Other Products', 'bi-box-seam', others);
+  html += '</div>';
+  marketContainer.innerHTML = html;
+}
+
+
+export function showMarketBasePricesModal() {
+  // Create and show a modal explaining Market Base Prices
+  const existingModal = document.getElementById('marketBasePricesInfoModal');
+  if (existingModal) existingModal.remove();
+
+  const modalHTML = `
+    <div class="modal fade" id="marketBasePricesInfoModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+          <div class="modal-header border-farm-accent">
+            <h5 class="modal-title"><i class="bi bi-info-circle me-2 text-farm-accent"></i>Market Base Prices</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <p>Market Base Prices show the <strong>default game price</strong> for a crop before any market location multipliers are applied.</p>
+            <p>If a crop only shows <em>Market Base Prices</em> as its selling location, it means <strong>no active sell points have been discovered yet</strong> for that crop on the map.</p>
+            <p class="text-muted mb-0"><small><i class="bi bi-lightbulb me-1"></i>Tip: Drive to sell points on the map to unlock their prices in the dashboard.</small></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+  const modal = new bootstrap.Modal(document.getElementById('marketBasePricesInfoModal'));
+  modal.show();
 }

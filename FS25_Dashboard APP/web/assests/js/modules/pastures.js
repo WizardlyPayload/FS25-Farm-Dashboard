@@ -1,3 +1,72 @@
+// FS25 FarmDashboard | pastures.js | v1.1.1
+
+/**
+ * Resolve which farm a pasture belongs to: pasture row first, then any animal (REST often only had building id on parent).
+ */
+function inferPastureFarmId(p) {
+  if (!p) return NaN;
+  const raw = p.farmId ?? p.ownerFarmId;
+  let pid = Number(raw);
+  if (Number.isFinite(pid) && pid > 0) return pid;
+  const animals = p.animals || [];
+  for (let i = 0; i < animals.length; i++) {
+    const a = animals[i];
+    const aid = Number(a?.ownerFarmId ?? a?.farmId);
+    if (Number.isFinite(aid) && aid > 0) return aid;
+  }
+  return NaN;
+}
+
+/**
+ * Pastures for the active farm (multi-farm / FTP). Matches farm id on pasture or on animals.
+ * If still unknown and not multi-farm, include (local saves). If unknown and multi-farm, exclude unless fallback.
+ */
+export function filterPasturesForFarmView(pastures, farmId, dashboard) {
+  if (!Array.isArray(pastures)) return [];
+  const fid = Number(farmId);
+  const multiFarm =
+    dashboard &&
+    typeof dashboard.isFarmDropdownEnabled === "function" &&
+    dashboard.isFarmDropdownEnabled();
+
+  if (!Number.isFinite(fid) || fid <= 0) {
+    return pastures.slice();
+  }
+
+  const filtered = pastures.filter((p) => {
+    const pid = inferPastureFarmId(p);
+    if (Number.isFinite(pid) && pid > 0) {
+      return pid === fid;
+    }
+    return !multiFarm;
+  });
+
+  // FTP + no owner on animals/pasture (older payloads) — empty list helps nobody; show unscoped pastures once
+  if (multiFarm && filtered.length === 0 && pastures.length > 0) {
+    const anyResolved = pastures.some((p) => {
+      const pid = inferPastureFarmId(p);
+      return Number.isFinite(pid) && pid > 0;
+    });
+    if (!anyResolved) {
+      return pastures.slice();
+    }
+  }
+
+  return filtered;
+}
+
+export function getPasturesForActiveFarm() {
+  return filterPasturesForFarmView(
+    this.pastures || [],
+    this.activeFarmId,
+    this
+  );
+}
+
+if (typeof window !== "undefined") {
+  window.filterPasturesForFarmView = filterPasturesForFarmView;
+}
+
 export function updateMilkValues() {
   if (!this.milkPrice || this.milkPrice <= 0) {
     return;
@@ -1860,17 +1929,19 @@ export function updatePastureDisplay() {
     this.parsePastureData();
   }
 
-  // Update summary cards
-  const totalPastures = this.pastures.length;
-  const totalLivestock = this.pastures.reduce(
+  const pasturesView = this.getPasturesForActiveFarm();
+
+  // Update summary cards (active farm only)
+  const totalPastures = pasturesView.length;
+  const totalLivestock = pasturesView.reduce(
     (sum, pasture) => sum + pasture.animalCount,
     0
   );
-  const totalAllWarnings = this.pastures.reduce(
+  const totalAllWarnings = pasturesView.reduce(
     (sum, pasture) => sum + pasture.allWarnings.length,
     0
   );
-  const totalMilkValue = this.pastures.reduce((sum, pasture) => {
+  const totalMilkValue = pasturesView.reduce((sum, pasture) => {
     // Only include value from pastures that actually have dairy animals
     if (
       pasture.milkProductionData &&
@@ -1883,7 +1954,7 @@ export function updatePastureDisplay() {
   const avgHealth =
     totalLivestock > 0
       ? (
-          this.pastures.reduce(
+          pasturesView.reduce(
             (sum, pasture) => sum + pasture.avgHealth * pasture.animalCount,
             0
           ) / totalLivestock
@@ -1896,7 +1967,7 @@ export function updatePastureDisplay() {
   if (totalPasturesEl) totalPasturesEl.textContent = totalPastures;
   if (pastureAnimalsEl) pastureAnimalsEl.textContent = totalLivestock;
   // Calculate total birth warnings from unified warnings system
-  const totalBirthWarnings = this.pastures.reduce((sum, pasture) => {
+  const totalBirthWarnings = pasturesView.reduce((sum, pasture) => {
     const birthWarnings = pasture.allWarnings.filter(
       (w) => w.type === "birth"
     );
@@ -1918,7 +1989,7 @@ export function updatePastureDisplay() {
 
   // Update pastures list (only if pastures container exists)
   if (document.getElementById("pastures-list")) {
-    this.renderPasturesList();
+    this.renderPasturesList(pasturesView);
   }
 
   // Update main dashboard count
@@ -1940,13 +2011,18 @@ export function updatePastureDisplay() {
   }
 }
 
-export function renderPasturesList() {
+export function renderPasturesList(pasturesList) {
+  const list =
+    pasturesList !== undefined
+      ? pasturesList
+      : this.getPasturesForActiveFarm();
+
   // console.log("[DEBUG] ***** renderPasturesList CALLED *****");
   // console.log("[DEBUG] this.pastures:", this.pastures);
   // console.log("[DEBUG] this.pastures.length:", this.pastures.length);
 
-  if (this.pastures && this.pastures.length > 0) {
-    this.pastures.forEach((pasture, index) => {
+  if (list && list.length > 0) {
+    list.forEach((pasture, index) => {
       // console.log(
       //   `[DEBUG] Pasture ${index} (${pasture.name}) foodReport:`,
       //   pasture.foodReport
@@ -1965,18 +2041,18 @@ export function renderPasturesList() {
   const pasturesContainer = document.getElementById("pastures-list");
   if (!pasturesContainer) return;
 
-  if (this.pastures.length === 0) {
+  if (!list || list.length === 0) {
     pasturesContainer.innerHTML = `
               <div class="text-center text-muted py-4">
                   <i class="bi bi-info-circle display-1"></i>
                   <h4>No Pastures Found</h4>
-                  <p>No livestock buildings with animals were found in your save data.</p>
+                  <p>No livestock buildings with animals were found for this farm.</p>
               </div>
           `;
     return;
   }
 
-  const pasturesHTML = this.pastures
+  const pasturesHTML = list
     .map(
       (pasture) => `
           <div class="card bg-dark mb-3">
@@ -2490,9 +2566,15 @@ export function showPastureLivestock(pastureId) {
 }
 
 export function showAllPastureLivestock() {
-  // Combine all animals from all pastures
-  const allAnimals = this.pastures.flatMap((pasture) => pasture.animals);
-  this.renderPastureLivestockTable(allAnimals, "All Pasture Livestock");
+  const view = this.getPasturesForActiveFarm();
+  const allAnimals = view.flatMap((pasture) => pasture.animals || []);
+  const multiFarm =
+    typeof this.isFarmDropdownEnabled === "function" &&
+    this.isFarmDropdownEnabled();
+  this.renderPastureLivestockTable(
+    allAnimals,
+    multiFarm ? "All Pasture Livestock (this farm)" : "All Pasture Livestock"
+  );
   const modal = new bootstrap.Modal(
     document.getElementById("pasturelivestock-modal")
   );

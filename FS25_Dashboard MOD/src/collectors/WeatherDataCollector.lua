@@ -1,18 +1,9 @@
+-- FS25 FarmDashboard | WeatherDataCollector.lua | v1.0.0
+
 WeatherDataCollector = {}
 
 function WeatherDataCollector:init()
     print("[FarmDashboard] Weather data collector initialized")
-    self.hasLoggedProperties = false
-end
-
-function WeatherDataCollector:countProperties(obj)
-    local count = 0
-    if obj then
-        for _ in pairs(obj) do
-            count = count + 1
-        end
-    end
-    return count
 end
 
 function WeatherDataCollector:collect()
@@ -24,47 +15,6 @@ function WeatherDataCollector:collect()
     
     local env = _G.g_currentMission.environment
     local weather = env.weather
-    
-    -- Debug logging to see what properties are available (only log once)
-    if not self.hasLoggedProperties then
-        self.hasLoggedProperties = true
-        Logging.info("[FarmDash] Weather object properties check:")
-        
-        -- Log all properties of the weather object for debugging
-        if weather then
-            Logging.info("[FarmDash] Weather object has %d properties", self:countProperties(weather))
-            for key, value in pairs(weather) do
-                if type(value) ~= "function" and type(value) ~= "table" then
-                    Logging.info("[FarmDash] weather.%s = %s (type: %s)", tostring(key), tostring(value), type(value))
-                elseif type(value) == "table" and key == "forecast" then
-                    Logging.info("[FarmDash] weather.forecast is a table with %d entries", #value)
-                    if #value > 0 and value[1] then
-                        Logging.info("[FarmDash] First forecast entry: temp=%s, weather=%s", 
-                            tostring(value[1].temperature or value[1].minTemperature or "unknown"),
-                            tostring(value[1].weatherType or "unknown"))
-                    end
-                end
-            end
-        end
-        
-        -- Also check environment object
-        if env then
-            Logging.info("[FarmDash] Environment object properties check:")
-            for key, value in pairs(env) do
-                if type(value) ~= "function" and type(value) ~= "table" and 
-                   (string.find(tostring(key):lower(), "temp") or string.find(tostring(key):lower(), "weather") or
-                    string.find(tostring(key):lower(), "time") or string.find(tostring(key):lower(), "hour") or
-                    string.find(tostring(key):lower(), "day")) then
-                    Logging.info("[FarmDash] env.%s = %s (type: %s)", tostring(key), tostring(value), type(value))
-                end
-            end
-            
-            -- Log current game time for debugging timing issues
-            Logging.info("[FarmDash] Current game time - Hour: %s, Day: %s", 
-                tostring(env.currentHour or "unknown"), 
-                tostring(env.currentDay or "unknown"))
-        end
-    end
     
     -- Get temperature - prioritize actual current conditions over forecast
     local temperature = 20
@@ -110,11 +60,6 @@ function WeatherDataCollector:collect()
         end
     end
     
-    -- Log temperature source for debugging
-    if not self.hasLoggedProperties then
-        Logging.info("[FarmDash] Temperature source: %s = %s", tempSource, tostring(temperature))
-    end
-    
     -- Get weather type - prioritize actual current conditions
     local weatherType = 0
     local weatherSource = "default"
@@ -145,11 +90,6 @@ function WeatherDataCollector:collect()
             weatherType = wType
             weatherSource = "weather:getCurrentWeatherType()"
         end
-    end
-    
-    -- Log weather type source for debugging
-    if not self.hasLoggedProperties then
-        Logging.info("[FarmDash] Weather type source: %s = %s (%s)", weatherSource, tostring(weatherType), self:getWeatherTypeName(weatherType))
     end
     
     -- Get wind data
@@ -253,14 +193,18 @@ function WeatherDataCollector:collectForecast(weather)
         end
     end
     
-    -- If no forecast data found, create a simple forecast based on current weather
+    -- If no forecast data found, generate a stable 3-day forecast.
+    -- Seed from current game day so values are consistent within a day
+    -- but change naturally as days progress — no random flicker on each collect.
     if #forecast == 0 then
-        -- Create a 3-day forecast with some variation
         local currentTemp = weather.currentTemperature or 20
         local currentType = weather.currentWeatherType or 0
-        
+        local env2 = _G.g_currentMission and _G.g_currentMission.environment
+        local seed = env2 and (env2.currentDay or 1) or 1
+
         for i = 1, 3 do
-            local variation = math.random(-2, 2)
+            -- Simple deterministic variation: different offset per day using seed
+            local variation = ((seed * 7 + i * 13) % 5) - 2  -- produces -2..2
             table.insert(forecast, {
                 day = i,
                 weatherType = self:getWeatherTypeName(currentType),

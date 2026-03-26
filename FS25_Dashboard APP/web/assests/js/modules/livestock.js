@@ -1,3 +1,5 @@
+// FS25 FarmDashboard | livestock.js | v1.0.0
+
 export function refreshAnimalData() {
   if (!this.savedFolderData || !this.savedFolderData.xmlData) {
     return;

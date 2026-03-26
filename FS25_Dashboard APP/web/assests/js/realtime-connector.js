@@ -1,3 +1,8 @@
+// FS25 FarmDashboard | realtime-connector.js | v1.0.3
+
+/** Set true only when diagnosing livestock change notifications */
+const VERBOSE_CHANGE_LOG = false;
+
 class RealtimeConnector {
   constructor(dashboard) {
     this.dashboard = dashboard;
@@ -87,8 +92,8 @@ class RealtimeConnector {
 
       this.ws.onmessage = (event) => {
         try {
-          const data = JSON.parse(event.data);
-          this.handleRealtimeData(data);
+          const parsed = JSON.parse(event.data);
+          this.handleRealtimeData(parsed);
         } catch (error) {
           console.error(
             "[RealtimeConnector] Error parsing WebSocket data:",
@@ -214,8 +219,23 @@ class RealtimeConnector {
     }
   }
 
-  handleRealtimeData(data) {
+  /**
+   * HTTP polling returns the merged object (+ timestamp). WebSocket sends
+   * { type: 'data', serverId, data: merged, timestamp } from main process broadcast.
+   */
+  normalizeRealtimePayload(raw) {
+    if (!raw || typeof raw !== "object") return null;
+    if (raw.type === "data" && raw.data != null && typeof raw.data === "object") {
+      return raw.data;
+    }
+    return raw;
+  }
+
+  handleRealtimeData(raw) {
+    const data = this.normalizeRealtimePayload(raw);
     if (!data) return;
+
+    if (data.error === "Waiting for data...") return;
 
     // Store current dashboard state before updating (for change comparison)
     // Use the previously stored state, not the current state
@@ -259,6 +279,15 @@ class RealtimeConnector {
       this.updateFarmInfo(data.farmInfo);
     }
 
+    // Handle merged data top-level fields from dataMerger
+    if (data.mapTitle)     this.dashboard.mapTitle     = data.mapTitle;
+    if (data.savegameName) this.dashboard.savegameName = data.savegameName;
+    if (data.dataSource)   this.dashboard.dataSource   = data.dataSource;
+    if (data.xmlAvailable !== undefined) this.dashboard.xmlAvailable = data.xmlAvailable;
+    if (data.luaAvailable !== undefined) this.dashboard.luaAvailable = data.luaAvailable;
+    if (data.money !== undefined) this.dashboard.money = data.money;
+    if (data.gameSettings) this.dashboard.gameSettings = data.gameSettings;
+
     this.dashboard.lastUpdate = new Date();
     this.updateLastUpdateTime();
 
@@ -282,11 +311,13 @@ class RealtimeConnector {
         now - this.lastChangeCheck >= 10000;
 
       if (shouldCheckNow) {
-        console.log(
-          `[ChangeDetection] Running change detection check... (count changed: ${
-            oldCount !== newCount
-          })`
-        );
+        if (VERBOSE_CHANGE_LOG) {
+          console.log(
+            `[ChangeDetection] Running change detection check... (count changed: ${
+              oldCount !== newCount
+            })`
+          );
+        }
         this.detectAndShowChanges(oldState);
         this.lastChangeCheck = now;
       }
@@ -296,9 +327,12 @@ class RealtimeConnector {
   }
 
   updateAnimalsData(animalsData) {
-    // Handle API data format - husbandry buildings with animal details
+    // Handle API data format — husbandry buildings with animal details.
+    // Only include animals owned by the selected farm (same idea as vehicles/fields).
 
     const formattedAnimals = [];
+    const activeFarmId = Number(this.dashboard?.activeFarmId ?? 1);
+    let rawHusbandryCount = 0;
 
     // Handle different data formats (vanilla vs RealisticLivestock)
     if (animalsData) {
@@ -328,7 +362,12 @@ class RealtimeConnector {
         return;
       }
 
+      rawHusbandryCount = husbandryArray.length;
+
       husbandryArray.forEach((husbandry, index) => {
+        const hfarm = Number(husbandry.ownerFarmId ?? husbandry.farmId ?? 0);
+        if (hfarm !== activeFarmId) return;
+
         // Check different possible animal data structures
         let animalsList = null;
 
@@ -372,6 +411,7 @@ class RealtimeConnector {
                 husbandryName: husbandry.name || husbandry.buildingName,
                 husbandryId: husbandry.id || husbandry.buildingId,
                 ownerFarmId: husbandry.ownerFarmId || husbandry.farmId,
+                farmId: hfarm,
                 age: animalGroup.age || animalGroup.ageInMonths || 24,
                 health: animalGroup.health || animalGroup.healthStatus || 100,
                 weight: animalGroup.weight || animalGroup.currentWeight || 350,
@@ -444,6 +484,7 @@ class RealtimeConnector {
                   husbandryName: husbandry.name || husbandry.buildingName,
                   husbandryId: husbandry.id || husbandry.buildingId,
                   ownerFarmId: husbandry.ownerFarmId || husbandry.farmId,
+                  farmId: hfarm,
                   age: age,
                   health:
                     animalGroup.health && animalGroup.health > 0
@@ -481,6 +522,7 @@ class RealtimeConnector {
               husbandryName: husbandry.name,
               husbandryId: husbandry.id,
               ownerFarmId: husbandry.ownerFarmId,
+              farmId: hfarm,
               age: Math.floor(seededRandom() * 48) + 12, // 12-60 months, consistent
               health: 85 + seededRandom() * 15, // Consistent health
               weight: 250 + seededRandom() * 200, // Consistent weight
@@ -498,10 +540,15 @@ class RealtimeConnector {
     }
 
     if (formattedAnimals.length === 0) {
-      console.warn(
-        "[RealtimeConnector] No animals found in data! Check the console logs above to debug."
-      );
-    } else {
+      if (rawHusbandryCount > 0) {
+        console.warn(
+          `[RealtimeConnector] No animals for selected farm (farmId=${activeFarmId}); other farms are hidden.`
+        );
+      } else {
+        console.warn(
+          "[RealtimeConnector] No animals found in data! Check the console logs above to debug."
+        );
+      }
     }
 
     this.dashboard.animals = formattedAnimals;
@@ -553,8 +600,9 @@ class RealtimeConnector {
 
   updateVehiclesData(vehiclesData) {
     // Filter to only show player-owned vehicles (ownerFarmId: 1)
+    const activeFarmId = window.dashboard?.activeFarmId || 1;
     const playerVehicles = vehiclesData
-      ? vehiclesData.filter((v) => v.ownerFarmId === 1)
+      ? vehiclesData.filter((v) => v.ownerFarmId === activeFarmId)
       : [];
     this.dashboard.vehicles = playerVehicles;
 
@@ -578,7 +626,13 @@ class RealtimeConnector {
   }
 
   updateFieldsData(fieldsData) {
-    this.dashboard.fields = fieldsData;
+    const list = Array.isArray(fieldsData) ? fieldsData : [];
+    this.dashboard.allFields = list;
+    const farmId = this.dashboard.activeFarmId ?? 1;
+    this.dashboard.fields =
+      typeof window.filterFieldsForFarmView === "function"
+        ? window.filterFieldsForFarmView(list, farmId)
+        : list;
 
     // Clear any field retry interval since we got data via realtime
     if (this.dashboard.fieldRetryInterval) {
@@ -616,6 +670,18 @@ class RealtimeConnector {
       if (this.dashboard.updatePastureDisplay) {
         this.dashboard.updatePastureDisplay();
       }
+    }
+
+    if (this.dashboard.refreshProductionsIfVisible) {
+      this.dashboard.refreshProductionsIfVisible();
+    }
+    const prodBadge = document.getElementById("production-count");
+    if (
+      prodBadge &&
+      typeof this.dashboard.getOwnedProductionChainCount === "function"
+    ) {
+      const n = this.dashboard.getOwnedProductionChainCount();
+      prodBadge.textContent = `${n} ${n === 1 ? "Chain" : "Chains"}`;
     }
   }
 
@@ -815,7 +881,7 @@ class RealtimeConnector {
       "vehicles",
       "fields",
       "economy",
-      "statistics",
+      "productions",
     ];
     sections.forEach((sectionId) => {
       const section = document.getElementById(sectionId);
@@ -899,9 +965,11 @@ class RealtimeConnector {
 
       // Always run full comparison if animal counts changed (animals bought/sold)
       if (oldAnimalCount !== newAnimalCount) {
-        console.log(
-          `[ChangeDetection] ✅ Animal count changed (${oldAnimalCount} -> ${newAnimalCount}), running full comparison`
-        );
+        if (VERBOSE_CHANGE_LOG) {
+          console.log(
+            `[ChangeDetection] Animal count changed (${oldAnimalCount} -> ${newAnimalCount}), running full comparison`
+          );
+        }
       } else if (oldAnimalCount > 0) {
         // Only check for status changes (pregnant, lactating) if counts are the same
         const hasStatusChanges = this.hasSignificantStatusChanges(
@@ -911,7 +979,7 @@ class RealtimeConnector {
         if (!hasStatusChanges) {
           return; // No meaningful changes, skip notifications
         }
-        console.log(`[ChangeDetection] Status changes detected`);
+        if (VERBOSE_CHANGE_LOG) console.log(`[ChangeDetection] Status changes detected`);
       } else {
         return; // No animals to compare
       }
@@ -931,20 +999,24 @@ class RealtimeConnector {
       // Calculate changes using dashboard's existing logic
       const changes = this.dashboard.calculateDataChanges();
 
-      console.log(`[ChangeDetection] Raw changes detected:`, {
-        added: changes.livestock?.added?.length || 0,
-        removed: changes.livestock?.removed?.length || 0,
-        updated: changes.livestock?.updated?.length || 0,
-      });
+      if (VERBOSE_CHANGE_LOG) {
+        console.log(`[ChangeDetection] Raw changes detected:`, {
+          added: changes.livestock?.added?.length || 0,
+          removed: changes.livestock?.removed?.length || 0,
+          updated: changes.livestock?.updated?.length || 0,
+        });
+      }
 
       // Filter changes to only include truly significant ones
       const filteredChanges = this.filterSignificantChanges(changes);
 
-      console.log(`[ChangeDetection] Filtered significant changes:`, {
-        added: filteredChanges.livestock?.added?.length || 0,
-        removed: filteredChanges.livestock?.removed?.length || 0,
-        updated: filteredChanges.livestock?.updated?.length || 0,
-      });
+      if (VERBOSE_CHANGE_LOG) {
+        console.log(`[ChangeDetection] Filtered significant changes:`, {
+          added: filteredChanges.livestock?.added?.length || 0,
+          removed: filteredChanges.livestock?.removed?.length || 0,
+          updated: filteredChanges.livestock?.updated?.length || 0,
+        });
+      }
 
       // Only show notifications if there are truly significant changes
       const hasSignificantChanges =
@@ -952,13 +1024,12 @@ class RealtimeConnector {
         (filteredChanges.livestock?.removed?.length || 0) > 0 ||
         (filteredChanges.livestock?.updated?.length || 0) > 0;
 
-      console.log(
-        `[ChangeDetection] Has significant changes:`,
-        hasSignificantChanges
-      );
+      if (VERBOSE_CHANGE_LOG) {
+        console.log(`[ChangeDetection] Has significant changes:`, hasSignificantChanges);
+      }
 
       if (hasSignificantChanges) {
-        console.log(`[ChangeDetection] Showing toast notifications`);
+        if (VERBOSE_CHANGE_LOG) console.log(`[ChangeDetection] Showing toast notifications`);
         this.dashboard.showChangeToasts(filteredChanges);
       }
 
@@ -1035,7 +1106,7 @@ class RealtimeConnector {
     // Filter updated animals to only include significant status changes
     if (changes.livestock.updated && changes.livestock.updated.length > 0) {
       changes.livestock.updated.forEach((update) => {
-        console.log(`[ChangeDetection] Examining update:`, update);
+        if (VERBOSE_CHANGE_LOG) console.log(`[ChangeDetection] Examining update:`, update);
 
         // Check the actual structure of changes - it might be an object or different format
         let changesArray = [];
@@ -1061,12 +1132,14 @@ class RealtimeConnector {
 
         if (isSignificantUpdate) {
           filteredChanges.livestock.updated.push(update);
-          console.log(
-            `[ChangeDetection] Keeping significant update for ID ${
-              update.new?.id
-            }: ${changesArray.join(", ")}`
-          );
-        } else {
+          if (VERBOSE_CHANGE_LOG) {
+            console.log(
+              `[ChangeDetection] Keeping significant update for ID ${
+                update.new?.id
+              }: ${changesArray.join(", ")}`
+            );
+          }
+        } else if (VERBOSE_CHANGE_LOG) {
           console.log(
             `[ChangeDetection] Filtering out minor update for ID ${
               update.new?.id

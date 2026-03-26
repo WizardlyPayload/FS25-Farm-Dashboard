@@ -1,3 +1,5 @@
+-- FS25 FarmDashboard | EconomyDataCollector.lua | v1.0.0
+
 EconomyDataCollector = {}
 
 function EconomyDataCollector:init()

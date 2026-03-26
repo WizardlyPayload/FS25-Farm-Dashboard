@@ -1,1 +1,26 @@
-FS25_Dashboard APP/release/win-unpacked/FS25 Farm Dashboard.exe
+# Dependencies
+node_modules/
+
+# Electron / electron-builder output
+release/
+dist/
+out/
+
+# Logs and local env
+*.log
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Optional: unpacked build (if you ever run pack without cleaning)
+**/win-unpacked/

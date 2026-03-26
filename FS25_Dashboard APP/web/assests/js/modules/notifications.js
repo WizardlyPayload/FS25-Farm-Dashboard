@@ -1,3 +1,5 @@
+// FS25 FarmDashboard | notifications.js | v1.0.0
+
 export function addNotificationToHistory(notification) {
   // Add timestamp if not present
   if (!notification.timestamp) {

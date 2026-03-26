@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- FS25 FarmDashboard | index.html | v1.0.0 -->
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -32,6 +33,10 @@
             <i class="bi bi-clock me-1"></i>
             <span>Loading...</span>
           </div>
+          <div class="badge bg-secondary text-light ms-2 d-none" id="navbar-datasource" title="Data source">
+            <i class="bi bi-database me-1"></i>
+            <span id="navbar-datasource-text">--</span>
+          </div>
           <div class="badge bg-info text-light ms-2 d-none" id="navbar-weather" style="cursor: pointer;">
             <i class="bi bi-thermometer-half me-1"></i>
             <span id="navbar-temperature">--°C</span>
@@ -59,7 +64,11 @@
             <i class="bi bi-palette-fill"></i>
           </button>
 
-          <button id="nav-home-btn" class="btn btn-outline-farm-accent btn-sm d-none" onclick="dashboard.showLanding()" title="Return to dashboard">
+          <button class="btn btn-outline-warning btn-sm me-2" id="nav-settings-btn" type="button" title="Server Settings">
+            <i class="bi bi-gear-fill"></i>
+          </button>
+
+          <button id="nav-home-btn" type="button" class="btn btn-outline-farm-accent btn-sm d-none" title="Return to dashboard">
             <i class="bi bi-house-door me-1"></i>Home
           </button>
         </div>
@@ -72,31 +81,27 @@
           <div class="col-12">
             <div id="folder-selection" class="card shadow-sm border-farm-accent">
               <div class="card-header bg-farm-primary text-white">
-                <h5 class="card-title text-danger mb-0"><i class="bi bi-folder2-open me-2"></i>Something went wrong.</h5>
+                <h5 class="card-title text-warning mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Oops — something went wrong</h5>
               </div>
               <div class="card-body">
-                <div class="row align-items-center">
-                  <div class="col-md-8">
-                    <input type="file" class="d-none" id="folder-input" webkitdirectory directory multiple/>
-                    <label for="folder-input" class="btn btn-farm-accent me-2">
-                      <i class="bi bi-folder-plus me-1"></i>Choose Save Folder
-                    </label>
-                    <button id="clear-folder-btn" class="btn btn-danger d-none"><i class="bi bi-trash me-1"></i>Clear Saved Data</button>
-                  </div>
-                  <div class="col-md-4">
-                    <span id="folder-path" class="text-muted fst-italic">No folder selected</span>
-                  </div>
+                <p class="mb-2">
+                  We couldn&apos;t connect to the dashboard API. Check that the game is running with the mod, or go back to
+                  <strong>Home</strong> to add or change server settings and browse local saves.
+                </p>
+                <p class="small text-muted mb-3">
+                  <i class="bi bi-info-circle me-1"></i>If this keeps happening, try restarting
+                  <code class="text-light">start-dashboard.bat</code> or your server.
+                </p>
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                  <button type="button" class="btn btn-farm-accent" id="folder-error-back-home-btn">
+                    <i class="bi bi-house-door me-1"></i>Back to Home
+                  </button>
+                  <a href="#" class="text-farm-accent text-decoration-underline" id="folder-error-back-home-link">Return to home</a>
                 </div>
-                <div class="mt-3">
-                  <small class="text-muted"><i class="bi bi-info-circle me-1"></i>Select your Farming Simulator save folder.<br /></small>
-                  <div class="mt-2">
-                    <small class="text-warning">
-                      <i class="bi bi-exclamation-triangle me-1"></i>
-                      <strong>Important:</strong> You are seeing this due to the API failing to connect.<br />
-                      Please restart start-dashboard.bat to resolve this problem.
-                    </small>
-                  </div>
-                </div>
+                <!-- Hidden: folder picker / path / clear — used by refresh & offline flows (apiStorage.js, navigation.js) -->
+                <input type="file" class="d-none" id="folder-input" webkitdirectory directory multiple/>
+                <span id="folder-path" class="d-none">No folder selected</span>
+                <button type="button" id="clear-folder-btn" class="btn btn-danger d-none"><i class="bi bi-trash me-1"></i>Clear Saved Data</button>
               </div>
             </div>
           </div>
@@ -173,12 +178,12 @@
             </div>
 
             <div class="col-md-6 col-lg-4">
-              <div class="card bg-secondary h-100 dashboard-nav-card" onclick="dashboard.showSection('statistics')">
+              <div class="card bg-secondary h-100 dashboard-nav-card" onclick="dashboard.showSection('productions')">
                 <div class="card-body text-center p-4">
-                  <div class="mb-3"><i class="bi bi-bar-chart display-1 text-farm-accent"></i></div>
-                  <h4 class="card-title text-farm-accent">Statistics</h4>
-                  <p class="card-text text-muted">View comprehensive farm analytics and performance data</p>
-                  <div class="mt-3"><span class="badge bg-farm-primary" id="stats-info">Coming Soon</span></div>
+                  <div class="mb-3"><i class="bi bi-building-gear display-1 text-farm-accent"></i></div>
+                  <h4 class="card-title text-farm-accent">Productions</h4>
+                  <p class="card-text text-muted">Production chains, storage fill levels, and active slots</p>
+                  <div class="mt-3"><span class="badge bg-farm-warning" id="production-count">0 Chains</span></div>
                 </div>
               </div>
             </div>
@@ -483,7 +488,7 @@
         <div class="modal fade" id="warningModal" tabindex="-1" aria-hidden="true">
           <div class="modal-dialog modal-lg">
             <div class="modal-content bg-dark text-light">
-              <div class="modal-header"><h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2 text-warning"></i>Warning Details</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+              <div class="modal-header"><h5 class="modal-title" id="warningModalLabel"><i class="bi bi-exclamation-triangle me-2 text-warning"></i>Warning Details</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
               <div class="modal-body"><div id="warningDetailsContent"></div></div>
               <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
             </div>

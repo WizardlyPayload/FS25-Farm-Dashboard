@@ -1,9 +1,10 @@
 {
   "name": "fs25-farm-dashboard",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Real-time Farm Management Dashboard for FS25",
   "main": "main.js",
   "scripts": {
+    "export-fields-csv": "node tools/export-fields-to-csv.mjs",
     "start": "electron .",
     "pack": "electron-builder --dir",
     "dist": "electron-builder --win"
@@ -14,6 +15,14 @@
     "directories": {
       "output": "release/"
     },
+    "files": [
+      "main.js",
+      "xmlCollector.js",
+      "dataMerger.js",
+      "setup.html",
+      "web/**/*",
+      "node_modules/**/*"
+    ],
     "win": {
       "target": "nsis",
       "icon": "icon.ico"

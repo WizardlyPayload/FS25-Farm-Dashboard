@@ -1,3 +1,5 @@
+// FS25 FarmDashboard | theming.js | v1.0.0
+
 export function initTheming() {
     // Original defaults based exactly on your CSS
     const defaultColors = { bg: '#121212', panel: '#1a1a1a', primary: '#2d5016', accent: '#daa520' };

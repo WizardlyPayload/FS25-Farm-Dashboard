@@ -1,3 +1,5 @@
+// FS25 FarmDashboard | vehicles.js | v1.0.1
+
 export function showVehiclesSection() {
   const vehiclesHTML = `
             <div class="row mb-4">
@@ -1707,12 +1709,16 @@ export function getBrandImageUrl(brandImagePath, brandName) {
 // Vehicle Management Methods
 export async function loadVehicles() {
   try {
-    const response = await fetch("/api/vehicles");
+    const base =
+      typeof window !== "undefined" && window.dashboard?.getAPIBaseURL
+        ? window.dashboard.getAPIBaseURL()
+        : "http://127.0.0.1:8766";
+    const response = await fetch(`${base}/api/vehicles`);
     if (response.ok) {
       const allVehicles = await response.json();
       // Filter to only show player-owned vehicles (ownerFarmId: 1)
       this.vehicles = allVehicles
-        ? allVehicles.filter((v) => v.ownerFarmId === 1)
+        ? allVehicles.filter((v) => v.ownerFarmId === (window.dashboard?.activeFarmId || 1))
         : [];
       this.updateVehicleSummaryCards();
       this.renderVehicleCards(this.vehicles);
@@ -2167,7 +2173,7 @@ export function applyVehicleFilters() {
 
   // Start by filtering to only show player-owned vehicles (ownerFarmId: 1) and exclude storage items
   let filteredVehicles = [...(this.vehicles || [])].filter(
-    (v) => v.ownerFarmId === 1 && !this.isStorageItem(v)
+    (v) => v.ownerFarmId === (this.activeFarmId || 1) && !this.isStorageItem(v)
   );
 
   // Apply type filter with improved matching

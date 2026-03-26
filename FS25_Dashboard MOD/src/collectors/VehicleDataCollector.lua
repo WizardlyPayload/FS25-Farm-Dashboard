@@ -1,3 +1,5 @@
+-- FS25 FarmDashboard | VehicleDataCollector.lua | v1.0.0
+
 VehicleDataCollector = {}
 
 function VehicleDataCollector:init()

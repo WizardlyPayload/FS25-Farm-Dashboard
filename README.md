@@ -78,12 +78,6 @@ Do **not** commit `node_modules/` — use `.gitignore` (included).
 
 ---
 
-## Two local folders (MAIN backup + this clone)
-
-If you keep a second copy outside git (e.g. **MAIN CODEBASE**) as a safety net, run `tools/Sync-FarmDashboard-Trees.ps1` to mirror sources between that tree and this repo: `-Direction ToGit` after editing MAIN (before `git commit`), or `-Direction FromGit` after `git pull` to refresh MAIN. Use `-DryRun` first to preview. Override paths with `-MainRoot`, `-GitRoot`, or `FARM_DASHBOARD_MAIN_ROOT` / `FARM_DASHBOARD_GIT_ROOT`.
-
----
-
 ## Troubleshooting
 
 | Issue | Try |

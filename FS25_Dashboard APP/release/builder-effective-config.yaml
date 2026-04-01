@@ -3,6 +3,28 @@ directories:
   buildResources: build
 appId: com.farmdashboard.app
 productName: FS25 Farm Dashboard
+files:
+  - filter:
+      - main.js
+      - preload.js
+      - xmlCollector.js
+      - dataMerger.js
+      - setup.html
+      - web/**/*
+      - node_modules/**/*
+extraResources:
+  - from: ../../tools/Export-ModStoreImages.ps1
+    to: tools/Export-ModStoreImages.ps1
+  - from: build/install-imagemagick.ps1
+    to: install-imagemagick.ps1
+  - from: resources/imagemagick
+    to: imagemagick
+    filter:
+      - '**/*'
+  - from: resources/texconv
+    to: texconv
+    filter:
+      - '**/*'
 win:
   target: nsis
   icon: icon.ico
@@ -12,5 +34,6 @@ nsis:
   createDesktopShortcut: true
   createStartMenuShortcut: true
   shortcutName: Farm Dashboard
-files: []
+  warningsAsErrors: false
+  include: build/installer.nsh
 electronVersion: 29.4.6

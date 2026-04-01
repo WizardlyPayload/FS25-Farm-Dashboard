@@ -2,7 +2,7 @@
   "name": "fs25-farm-dashboard",
   "version": "2.0.0",
   "description": "Real-time Farm Management Dashboard for FS25",
-  "author": "JoshWalki / Wizardlypayload; WizardlyPayload",
+  "author": "JoshWalki / Wizardlypayload & WizardlyPayload",
   "main": "main.js",
   "scripts": {
     "export-fields-csv": "node tools/export-fields-to-csv.mjs",
@@ -35,6 +35,11 @@
         "to": "install-imagemagick.ps1"
       },
       {
+        "from": "resources/imagemagick",
+        "to": "imagemagick",
+        "filter": ["**/*"]
+      },
+      {
         "from": "resources/texconv",
         "to": "texconv",
         "filter": ["**/*"]
@@ -50,6 +55,7 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "Farm Dashboard",
+      "warningsAsErrors": false,
       "include": "build/installer.nsh"
     }
   },

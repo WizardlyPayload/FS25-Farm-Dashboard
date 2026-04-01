@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="author" content="JoshWalki, WizardlyPayload" />
-    <title>Farming Dashboard</title>
+    <title data-i18n="page.title">Farming Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css"/>
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css"/>
@@ -25,16 +25,16 @@
       <div class="container-fluid">
         <div class="navbar-brand d-flex align-items-center">
           <i class="bi bi-speedometer2 me-2"></i>
-          <span id="navbar-section-title">Farm Dashboard</span>
+          <span id="navbar-section-title" data-i18n="nav.brand">Farm Dashboard</span>
           
           <div id="server-tabs-container" class="ms-4 me-2 d-flex align-items-center"></div>
           <div id="farm-dropdown-container" class="ms-2 d-none align-items-center"></div>
 
           <div class="badge bg-farm-accent text-light ms-2 d-none" id="navbar-game-time">
             <i class="bi bi-clock me-1"></i>
-            <span>Loading...</span>
+            <span data-i18n="nav.loading">Loading...</span>
           </div>
-          <div class="badge bg-secondary text-light ms-2 d-none" id="navbar-datasource" title="Data source">
+          <div class="badge bg-secondary text-light ms-2 d-none" id="navbar-datasource" data-i18n-title="nav.dataSource" title="Data source">
             <i class="bi bi-database me-1"></i>
             <span id="navbar-datasource-text">--</span>
           </div>
@@ -50,7 +50,7 @@
           <div id="nav-connection-status" class="d-none me-3">
             <span class="badge bg-success">
               <i class="bi bi-wifi me-1"></i>
-              <span id="nav-connection-text">Online</span>
+              <span id="nav-connection-text" data-i18n="nav.online">Online</span>
             </span>
           </div>
 
@@ -61,16 +61,16 @@
             </button>
           </div>
 
-          <button class="btn btn-outline-light btn-sm me-2" data-bs-toggle="modal" data-bs-target="#themeSettingsModal" title="Theme Settings">
+          <button class="btn btn-outline-light btn-sm me-2" data-bs-toggle="modal" data-bs-target="#themeSettingsModal" data-i18n-title="nav.theme" title="Theme Settings">
             <i class="bi bi-palette-fill"></i>
           </button>
 
-          <button class="btn btn-outline-warning btn-sm me-2" id="nav-settings-btn" type="button" title="Server Settings">
+          <button class="btn btn-outline-warning btn-sm me-2" id="nav-settings-btn" type="button" data-i18n-title="nav.settings" title="Server Settings">
             <i class="bi bi-gear-fill"></i>
           </button>
 
-          <button id="nav-home-btn" type="button" class="btn btn-outline-farm-accent btn-sm d-none" title="Return to dashboard">
-            <i class="bi bi-house-door me-1"></i>Home
+          <button id="nav-home-btn" type="button" class="btn btn-outline-farm-accent btn-sm d-none" data-i18n-title="nav.home" title="Return to dashboard">
+            <i class="bi bi-house-door me-1"></i><span data-i18n="nav.home">Home</span>
           </button>
         </div>
       </div>
@@ -82,27 +82,27 @@
           <div class="col-12">
             <div id="folder-selection" class="card shadow-sm border-farm-accent">
               <div class="card-header bg-farm-primary text-white">
-                <h5 class="card-title text-warning mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Oops — something went wrong</h5>
+                <h5 class="card-title text-warning mb-0"><i class="bi bi-exclamation-triangle me-2"></i><span data-i18n="folder.title">Oops — something went wrong</span></h5>
               </div>
               <div class="card-body">
-                <p class="mb-2">
+                <p class="mb-2" data-i18n="folder.p1" data-i18n-html>
                   We couldn&apos;t connect to the dashboard API. Check that the game is running with the mod, or go back to
                   <strong>Home</strong> to add or change server settings and browse local saves.
                 </p>
-                <p class="small text-muted mb-3">
+                <p class="small text-muted mb-3" data-i18n="folder.p2" data-i18n-html>
                   <i class="bi bi-info-circle me-1"></i>If this keeps happening, try restarting
                   <code class="text-light">start-dashboard.bat</code> or your server.
                 </p>
                 <div class="d-flex flex-wrap align-items-center gap-3">
                   <button type="button" class="btn btn-farm-accent" id="folder-error-back-home-btn">
-                    <i class="bi bi-house-door me-1"></i>Back to Home
+                    <i class="bi bi-house-door me-1"></i><span data-i18n="folder.backHome">Back to Home</span>
                   </button>
-                  <a href="#" class="text-farm-accent text-decoration-underline" id="folder-error-back-home-link">Return to home</a>
+                  <a href="#" class="text-farm-accent text-decoration-underline" id="folder-error-back-home-link" data-i18n="folder.returnLink">Return to home</a>
                 </div>
                 <!-- Hidden: folder picker / path / clear — used by refresh & offline flows (apiStorage.js, navigation.js) -->
                 <input type="file" class="d-none" id="folder-input" webkitdirectory directory multiple/>
-                <span id="folder-path" class="d-none">No folder selected</span>
-                <button type="button" id="clear-folder-btn" class="btn btn-danger d-none"><i class="bi bi-trash me-1"></i>Clear Saved Data</button>
+                <span id="folder-path" class="d-none" data-i18n="folder.noFolder">No folder selected</span>
+                <button type="button" id="clear-folder-btn" class="btn btn-danger d-none"><i class="bi bi-trash me-1"></i><span data-i18n="folder.clearData">Clear Saved Data</span></button>
               </div>
             </div>
           </div>
@@ -111,12 +111,12 @@
         <div id="landing-page" class="d-none">
           <div class="row mb-4">
             <div class="col-12 text-center">
-              <h2 class="text-farm-accent mb-3"><i class="bi bi-speedometer2 me-2"></i>Farm Management Dashboard</h2>
-              <p class="lead text-muted">Select a section below to manage your farm data</p>
-              <div class="badge bg-farm-primary fs-6 mt-2" id="game-time-display"><i class="bi bi-clock me-1"></i>Loading game time...</div>
+              <h2 class="text-farm-accent mb-3"><i class="bi bi-speedometer2 me-2"></i><span data-i18n="landing.title">Farm Management Dashboard</span></h2>
+              <p class="lead text-muted" data-i18n="landing.lead">Select a section below to manage your farm data</p>
+              <div class="badge bg-farm-primary fs-6 mt-2" id="game-time-display"><i class="bi bi-clock me-1"></i><span data-i18n="landing.gameLoading">Loading game time...</span></div>
               <div class="mt-3">
                 <button type="button" class="btn btn-sm btn-outline-farm-accent" id="landing-import-mod-images" title="Scan local FS25 mods folder">
-                  <i class="bi bi-images me-1"></i>Import mod shop images
+                  <i class="bi bi-images me-1"></i><span data-i18n="landing.importMods">Import mod shop images</span>
                 </button>
               </div>
             </div>
@@ -127,9 +127,9 @@
               <div class="card bg-secondary h-100 dashboard-nav-card" onclick="dashboard.showSection('livestock')">
                 <div class="card-body text-center p-4">
                   <div class="mb-3"><i class="bi bi-clipboard-data display-1 text-farm-accent"></i></div>
-                  <h4 class="card-title text-farm-accent">Livestock</h4>
-                  <p class="card-text text-muted">Manage your animals, track health, breeding, and locations</p>
-                  <div class="mt-3"><span class="badge bg-farm-success" id="livestock-count">Loading...</span></div>
+                  <h4 class="card-title text-farm-accent" data-i18n="card.livestock">Livestock</h4>
+                  <p class="card-text text-muted" data-i18n="card.livestockDesc">Manage your animals, track health, breeding, and locations</p>
+                  <div class="mt-3"><span class="badge bg-farm-success" id="livestock-count" data-i18n="card.loading">Loading...</span></div>
                 </div>
               </div>
             </div>
@@ -138,9 +138,9 @@
               <div class="card bg-secondary h-100 dashboard-nav-card" onclick="dashboard.showSection('vehicles')">
                 <div class="card-body text-center p-4">
                   <div class="mb-3"><i class="bi bi-truck display-1 text-farm-accent"></i></div>
-                  <h4 class="card-title text-farm-accent">Vehicles</h4>
-                  <p class="card-text text-muted">View your fleet, maintenance status, and operating times</p>
-                  <div class="mt-3"><span class="badge bg-farm-secondary" id="vehicle-count">Loading...</span></div>
+                  <h4 class="card-title text-farm-accent" data-i18n="card.vehicles">Vehicles</h4>
+                  <p class="card-text text-muted" data-i18n="card.vehiclesDesc">View your fleet, maintenance status, and operating times</p>
+                  <div class="mt-3"><span class="badge bg-farm-secondary" id="vehicle-count" data-i18n="card.loading">Loading...</span></div>
                 </div>
               </div>
             </div>
@@ -149,9 +149,9 @@
               <div class="card bg-secondary h-100 dashboard-nav-card" onclick="dashboard.showSection('fields')">
                 <div class="card-body text-center p-4">
                   <div class="mb-3"><i class="bi bi-geo-alt display-1 text-farm-accent"></i></div>
-                  <h4 class="card-title text-farm-accent">Fields</h4>
-                  <p class="card-text text-muted">Monitor crop growth, soil conditions, and field management</p>
-                  <div class="mt-3"><span class="badge bg-farm-warning" id="field-count">Loading...</span></div>
+                  <h4 class="card-title text-farm-accent" data-i18n="card.fields">Fields</h4>
+                  <p class="card-text text-muted" data-i18n="card.fieldsDesc">Monitor crop growth, soil conditions, and field management</p>
+                  <div class="mt-3"><span class="badge bg-farm-warning" id="field-count" data-i18n="card.loading">Loading...</span></div>
                 </div>
               </div>
             </div>
@@ -160,9 +160,9 @@
               <div class="card bg-secondary h-100 dashboard-nav-card" onclick="dashboard.showSection('economy')">
                 <div class="card-body text-center p-4">
                   <div class="mb-3"><i class="bi bi-graph-up display-1 text-farm-accent"></i></div>
-                  <h4 class="card-title text-farm-accent">Economy</h4>
-                  <p class="card-text text-muted">Track commodity prices, market trends, and finances</p>
-                  <div class="mt-3"><span class="badge bg-farm-info" id="economy-info">Market Data</span></div>
+                  <h4 class="card-title text-farm-accent" data-i18n="card.economy">Economy</h4>
+                  <p class="card-text text-muted" data-i18n="card.economyDesc">Track commodity prices, market trends, and finances</p>
+                  <div class="mt-3"><span class="badge bg-farm-info" id="economy-info" data-i18n="card.marketBadge">Market Data</span></div>
                 </div>
               </div>
             </div>
@@ -171,12 +171,12 @@
               <div class="card bg-secondary h-100 dashboard-nav-card" onclick="dashboard.showSection('pastures')">
                 <div class="card-body text-center p-4">
                   <div class="mb-3"><i class="bi bi-diagram-3 display-1 text-farm-accent"></i></div>
-                  <h4 class="card-title text-farm-accent">Pastures</h4>
-                  <p class="card-text text-muted">Manage pastures, livestock, and grazing conditions</p>
+                  <h4 class="card-title text-farm-accent" data-i18n="card.pastures">Pastures</h4>
+                  <p class="card-text text-muted" data-i18n="card.pasturesDesc">Manage pastures, livestock, and grazing conditions</p>
                   <div class="mt-3">
-                    <span class="badge bg-farm-success" id="pasture-count">Loading...</span>
+                    <span class="badge bg-farm-success" id="pasture-count" data-i18n="card.loading">Loading...</span>
                     <span class="badge bg-farm-danger ms-2 d-none" id="pasture-warnings-badge">
-                      <i class="bi bi-exclamation-triangle me-1"></i><span id="pasture-warnings-count">0</span> Warnings
+                      <i class="bi bi-exclamation-triangle me-1"></i><span id="pasture-warnings-count">0</span> <span data-i18n="card.pasturesWarnings">Warnings</span>
                     </span>
                   </div>
                 </div>
@@ -187,8 +187,8 @@
               <div class="card bg-secondary h-100 dashboard-nav-card" onclick="dashboard.showSection('productions')">
                 <div class="card-body text-center p-4">
                   <div class="mb-3"><i class="bi bi-building-gear display-1 text-farm-accent"></i></div>
-                  <h4 class="card-title text-farm-accent">Productions</h4>
-                  <p class="card-text text-muted">Production chains, storage fill levels, and active slots</p>
+                  <h4 class="card-title text-farm-accent" data-i18n="card.productions">Productions</h4>
+                  <p class="card-text text-muted" data-i18n="card.productionsDesc">Production chains, storage fill levels, and active slots</p>
                   <div class="mt-3"><span class="badge bg-farm-warning" id="production-count">0 Chains</span></div>
                 </div>
               </div>
@@ -199,14 +199,14 @@
         <div id="section-content" class="d-none">
           <div class="row mb-4">
             <div class="col-12">
-              <button class="btn btn-outline-farm-accent" onclick="dashboard.showLanding()"><i class="bi bi-arrow-left me-2"></i>Back to Dashboard</button>
+              <button class="btn btn-outline-farm-accent" onclick="dashboard.showLanding()"><i class="bi bi-arrow-left me-2"></i><span data-i18n="section.back">Back to Dashboard</span></button>
             </div>
           </div>
         </div>
 
         <div id="dashboard-content" class="d-none">
           <div class="row mb-4">
-            <div class="col-12 text-center"><h2 class="text-farm-accent"><i class="bi bi-clipboard-data me-2"></i>Livestock Management</h2></div>
+            <div class="col-12 text-center"><h2 class="text-farm-accent"><i class="bi bi-clipboard-data me-2"></i><span data-i18n="livestock.heading">Livestock Management</span></h2></div>
           </div>
 
           <div class="tab-content" id="dashboard-tab-content">
@@ -216,7 +216,7 @@
                   <div class="card bg-farm-primary text-white border-0 summary-card-clickable" onclick="dashboard.filterAnimals('all')" data-filter="all">
                     <div class="card-body">
                       <div class="d-flex justify-content-between">
-                        <div><h6 class="card-title">Total Animals</h6><h2 class="mb-0" id="total-count">0</h2></div>
+                        <div><h6 class="card-title" data-i18n="livestock.total">Total Animals</h6><h2 class="mb-0" id="total-count">0</h2></div>
                         <div class="align-self-center"><i class="bi bi-clipboard-data fs-1"></i></div>
                       </div>
                     </div>
@@ -226,7 +226,7 @@
                   <div class="card bg-farm-primary text-white border-0 summary-card-clickable" onclick="dashboard.filterAnimals('lactating')" data-filter="lactating">
                     <div class="card-body">
                       <div class="d-flex justify-content-between">
-                        <div><h6 class="card-title">Lactating</h6><h2 class="mb-0" id="lactating-count">0</h2></div>
+                        <div><h6 class="card-title" data-i18n="livestock.lactating">Lactating</h6><h2 class="mb-0" id="lactating-count">0</h2></div>
                         <div class="align-self-center"><i class="bi bi-droplet fs-1"></i></div>
                       </div>
                     </div>
@@ -236,7 +236,7 @@
                   <div class="card bg-farm-primary text-white border-0 summary-card-clickable" onclick="dashboard.filterAnimals('pregnant')" data-filter="pregnant">
                     <div class="card-body">
                       <div class="d-flex justify-content-between">
-                        <div><h6 class="card-title">Pregnant</h6><h2 class="mb-0" id="pregnant-count">0</h2></div>
+                        <div><h6 class="card-title" data-i18n="livestock.pregnant">Pregnant</h6><h2 class="mb-0" id="pregnant-count">0</h2></div>
                         <div class="align-self-center"><i class="bi bi-heart fs-1"></i></div>
                       </div>
                     </div>
@@ -246,7 +246,7 @@
                   <div class="card bg-farm-primary text-white border-0 summary-card-clickable" onclick="dashboard.filterAnimals('health')" data-filter="health">
                     <div class="card-body">
                       <div class="d-flex justify-content-between">
-                        <div><h6 class="card-title">Avg Health</h6><h2 class="mb-0" id="avg-health">0%</h2></div>
+                        <div><h6 class="card-title" data-i18n="livestock.avgHealth">Avg Health</h6><h2 class="mb-0" id="avg-health">0%</h2></div>
                         <div class="align-self-center"><i class="bi bi-heart-pulse fs-1"></i></div>
                       </div>
                     </div>
@@ -259,9 +259,9 @@
                   <div class="card shadow-lg border-farm-accent">
                     <div class="card-header text-white">
                       <h6 class="card-title mb-0">
-                        <i class="bi bi-funnel me-2"></i> Livestock Filters
-                        <button class="btn btn-sm btn-outline-light ms-2" onclick="dashboard.toggleFilters()" id="filter-toggle-btn"><i class="bi bi-chevron-down"></i> Show Filters</button>
-                        <button class="btn btn-sm btn-outline-warning ms-2" onclick="dashboard.resetFilters()" id="reset-filters-btn"><i class="bi bi-arrow-clockwise me-1"></i> Reset</button>
+                        <i class="bi bi-funnel me-2"></i> <span data-i18n="livestock.filters">Livestock Filters</span>
+                        <button class="btn btn-sm btn-outline-light ms-2" onclick="dashboard.toggleFilters()" id="filter-toggle-btn"><i class="bi bi-chevron-down"></i> <span data-i18n="livestock.showFilters">Show Filters</span></button>
+                        <button class="btn btn-sm btn-outline-warning ms-2" onclick="dashboard.resetFilters()" id="reset-filters-btn"><i class="bi bi-arrow-clockwise me-1"></i> <span data-i18n="livestock.reset">Reset</span></button>
                       </h6>
                     </div>
                     <div class="card-body d-none" id="filters-panel">
@@ -269,16 +269,16 @@
                         <div class="col-md-3">
                           <label class="form-label text-farm-accent">Age Range (months)</label>
                           <div class="d-flex gap-2">
-                            <input type="number" class="form-control form-control-sm" id="age-min" placeholder="Min" min="0"/>
-                            <input type="number" class="form-control form-control-sm" id="age-max" placeholder="Max" min="0"/>
+                            <input type="number" class="form-control form-control-sm" id="age-min" data-i18n-placeholder="placeholder.min" placeholder="Min" min="0"/>
+                            <input type="number" class="form-control form-control-sm" id="age-max" data-i18n-placeholder="placeholder.max" placeholder="Max" min="0"/>
                           </div>
                         </div>
 
                         <div class="col-md-3">
                           <label class="form-label text-farm-accent">Weight Range (kg)</label>
                           <div class="d-flex gap-2">
-                            <input type="number" class="form-control form-control-sm" id="weight-min" placeholder="Min" min="0" step="0.1"/>
-                            <input type="number" class="form-control form-control-sm" id="weight-max" placeholder="Max" min="0" step="0.1"/>
+                            <input type="number" class="form-control form-control-sm" id="weight-min" data-i18n-placeholder="placeholder.min" placeholder="Min" min="0" step="0.1"/>
+                            <input type="number" class="form-control form-control-sm" id="weight-max" data-i18n-placeholder="placeholder.max" placeholder="Max" min="0" step="0.1"/>
                           </div>
                         </div>
 
@@ -379,7 +379,7 @@
                 <div class="col-12">
                   <div class="card shadow-lg border-farm-accent">
                     <div class="card-header text-white">
-                      <h5 class="card-title mb-0"><i class="bi bi-table me-2"></i>Animals List</h5>
+                      <h5 class="card-title mb-0"><i class="bi bi-table me-2"></i><span data-i18n="livestock.animalsList">Animals List</span></h5>
                     </div>
                     <div class="card-body p-0">
                       <div class="table-responsive">
@@ -392,7 +392,7 @@
                       </div>
                     </div>
                     <div class="card-footer border-0 text-center">
-                      <button class="btn btn-outline-farm-accent" onclick="dashboard.showExportModal()"><i class="bi bi-download me-2"></i>Export Data</button>
+                      <button class="btn btn-outline-farm-accent" onclick="dashboard.showExportModal()"><i class="bi bi-download me-2"></i><span data-i18n="livestock.export">Export Data</span></button>
                     </div>
                   </div>
                 </div>
@@ -401,15 +401,15 @@
 
             <div class="tab-pane fade" id="statistics-tab" role="tabpanel">
               <div class="card shadow-lg border-warning">
-                <div class="card-header bg-warning text-dark"><h5 class="card-title mb-0"><i class="bi bi-bar-chart me-2"></i>Farm Statistics</h5></div>
+                <div class="card-header bg-warning text-dark"><h5 class="card-title mb-0"><i class="bi bi-bar-chart me-2"></i><span data-i18n="stats.title">Farm Statistics</span></h5></div>
                 <div class="card-body"><div id="stats-content"><canvas id="stats-chart" width="400" height="200"></canvas></div></div>
               </div>
             </div>
 
             <div class="tab-pane fade" id="genetics-tab" role="tabpanel">
               <div class="card shadow-lg border-info">
-                <div class="card-header bg-info text-white"><h5 class="card-title mb-0"><i class="bi bi-dna me-2"></i>Genetics Overview</h5></div>
-                <div class="card-body"><div id="genetics-content"><p class="text-muted">Genetic data and breeding recommendations will appear here.</p></div></div>
+                <div class="card-header bg-info text-white"><h5 class="card-title mb-0"><i class="bi bi-dna me-2"></i><span data-i18n="genetics.title">Genetics Overview</span></h5></div>
+                <div class="card-body"><div id="genetics-content"><p class="text-muted" data-i18n="genetics.placeholder">Genetic data and breeding recommendations will appear here.</p></div></div>
               </div>
             </div>
           </div>
@@ -418,9 +418,9 @@
         <div class="modal fade" id="farmSelectionModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-dark text-light">
-              <div class="modal-header bg-farm-primary"><h5 class="modal-title"><i class="bi bi-house-door me-2"></i>Select Farm</h5></div>
-              <div class="modal-body"><p class="text-muted mb-3"><i class="bi bi-info-circle me-2"></i>Multiple farms found in this save file. Please select which farm's data you want to view:</p><div class="list-group" id="farm-selection-list"></div></div>
-              <div class="modal-footer"><small class="text-muted me-auto">You can change this selection later from the dashboard</small></div>
+              <div class="modal-header bg-farm-primary"><h5 class="modal-title"><i class="bi bi-house-door me-2"></i><span data-i18n="farmSelect.title">Select Farm</span></h5></div>
+              <div class="modal-body"><p class="text-muted mb-3"><i class="bi bi-info-circle me-2"></i><span data-i18n="farmSelect.body">Multiple farms found in this save file. Please select which farm's data you want to view:</span></p><div class="list-group" id="farm-selection-list"></div></div>
+              <div class="modal-footer"><small class="text-muted me-auto" data-i18n="farmSelect.footer">You can change this selection later from the dashboard</small></div>
             </div>
           </div>
         </div>
@@ -429,35 +429,35 @@
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-dark text-light">
               <div class="modal-header bg-farm-primary">
-                <h5 class="modal-title"><i class="bi bi-download me-2"></i>Export Livestock Data</h5>
+                <h5 class="modal-title"><i class="bi bi-download me-2"></i><span data-i18n="export.title">Export Livestock Data</span></h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
               </div>
               <div class="modal-body">
-                <p class="text-muted mb-4"><i class="bi bi-info-circle me-2"></i>Choose your preferred export format for the livestock data:</p>
+                <p class="text-muted mb-4"><i class="bi bi-info-circle me-2"></i><span data-i18n="export.intro">Choose your preferred export format for the livestock data:</span></p>
                 <div class="row g-3">
                   <div class="col-12">
                     <button class="btn btn-outline-farm-accent w-100 py-3" onclick="dashboard.exportData('csv')">
-                      <div class="d-flex align-items-center justify-content-between"><div class="d-flex align-items-center"><i class="bi bi-file-earmark-spreadsheet fs-4 me-3"></i><div class="text-start"><div class="fw-bold">CSV (Comma-Separated Values)</div><small class="text-muted">Compatible with Excel, Google Sheets</small></div></div><i class="bi bi-arrow-right"></i></div>
+                      <div class="d-flex align-items-center justify-content-between"><div class="d-flex align-items-center"><i class="bi bi-file-earmark-spreadsheet fs-4 me-3"></i><div class="text-start"><div class="fw-bold" data-i18n="export.csv">CSV (Comma-Separated Values)</div><small class="text-muted" data-i18n="export.csvSub">Compatible with Excel, Google Sheets</small></div></div><i class="bi bi-arrow-right"></i></div>
                     </button>
                   </div>
                   <div class="col-12">
                     <button class="btn btn-outline-farm-accent w-100 py-3" onclick="dashboard.exportData('excel')">
-                      <div class="d-flex align-items-center justify-content-between"><div class="d-flex align-items-center"><i class="bi bi-file-earmark-excel fs-4 me-3"></i><div class="text-start"><div class="fw-bold">Excel (.xlsx)</div><small class="text-muted">Microsoft Excel format with formatting</small></div></div><i class="bi bi-arrow-right"></i></div>
+                      <div class="d-flex align-items-center justify-content-between"><div class="d-flex align-items-center"><i class="bi bi-file-earmark-excel fs-4 me-3"></i><div class="text-start"><div class="fw-bold" data-i18n="export.xlsx">Excel (.xlsx)</div><small class="text-muted" data-i18n="export.xlsxSub">Microsoft Excel format with formatting</small></div></div><i class="bi bi-arrow-right"></i></div>
                     </button>
                   </div>
                   <div class="col-12">
                     <button class="btn btn-outline-farm-accent w-100 py-3" onclick="dashboard.exportData('pdf')">
-                      <div class="d-flex align-items-center justify-content-between"><div class="d-flex align-items-center"><i class="bi bi-file-earmark-pdf fs-4 me-3"></i><div class="text-start"><div class="fw-bold">PDF Document</div><small class="text-muted">Printable report format</small></div></div><i class="bi bi-arrow-right"></i></div>
+                      <div class="d-flex align-items-center justify-content-between"><div class="d-flex align-items-center"><i class="bi bi-file-earmark-pdf fs-4 me-3"></i><div class="text-start"><div class="fw-bold" data-i18n="export.pdf">PDF Document</div><small class="text-muted" data-i18n="export.pdfSub">Printable report format</small></div></div><i class="bi bi-arrow-right"></i></div>
                     </button>
                   </div>
                   <div class="col-12">
                     <button class="btn btn-outline-farm-accent w-100 py-3" onclick="dashboard.exportData('print')">
-                      <div class="d-flex align-items-center justify-content-between"><div class="d-flex align-items-center"><i class="bi bi-printer fs-4 me-3"></i><div class="text-start"><div class="fw-bold">Print Preview</div><small class="text-muted">Print directly from browser</small></div></div><i class="bi bi-arrow-right"></i></div>
+                      <div class="d-flex align-items-center justify-content-between"><div class="d-flex align-items-center"><i class="bi bi-printer fs-4 me-3"></i><div class="text-start"><div class="fw-bold" data-i18n="export.print">Print Preview</div><small class="text-muted" data-i18n="export.printSub">Print directly from browser</small></div></div><i class="bi bi-arrow-right"></i></div>
                     </button>
                   </div>
                 </div>
               </div>
-              <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button></div>
+              <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="common.cancel">Cancel</button></div>
             </div>
           </div>
         </div>
@@ -466,27 +466,27 @@
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-dark text-light">
               <div class="modal-header bg-farm-success">
-                <h5 class="modal-title"><i class="bi bi-arrow-clockwise me-2"></i>Refresh Farm Data</h5>
+                <h5 class="modal-title"><i class="bi bi-arrow-clockwise me-2"></i><span data-i18n="refresh.title">Refresh Farm Data</span></h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
               </div>
               <div class="modal-body">
-                <div class="text-center mb-4"><i class="bi bi-info-circle-fill text-farm-info fs-1 mb-3"></i><h6 class="text-farm-accent">Get Latest Data from Save Files</h6><h6 class="badge bg-danger">Ensure to save in-game before loading data.</h6></div>
-                <p class="text-muted mb-5">To refresh with the latest data from your save files, you need to re-select the save folder. This allows the browser to read the updated files from disk.</p>
-                <div class="alert alert-info bg-farm-info text-dark border-0 mb-4"><i class="bi bi-shield-check me-2"></i><strong>Why?</strong> Browsers cannot automatically re-read files from disk for security reasons.</div>
+                <div class="text-center mb-4"><i class="bi bi-info-circle-fill text-farm-info fs-1 mb-3"></i><h6 class="text-farm-accent" data-i18n="refresh.lead">Get Latest Data from Save Files</h6><h6 class="badge bg-danger" data-i18n="refresh.warn">Ensure to save in-game before loading data.</h6></div>
+                <p class="text-muted mb-5" data-i18n="refresh.paragraph">To refresh with the latest data from your save files, you need to re-select the save folder. This allows the browser to read the updated files from disk.</p>
+                <div class="alert alert-info bg-farm-info text-dark border-0 mb-4"><i class="bi bi-shield-check me-2"></i><strong data-i18n="refresh.why">Why?</strong> <span data-i18n="refresh.whyLine">Browsers cannot automatically re-read files from disk for security reasons.</span></div>
                 <div class="row g-3">
                   <div class="col-12">
                     <button class="btn btn-farm-accent w-100 py-3" onclick="dashboard.confirmRefreshData(true)" data-bs-dismiss="modal">
-                      <div class="d-flex align-items-center justify-content-between"><div class="d-flex align-items-center"><i class="bi bi-folder-plus fs-4 me-3"></i><div class="text-start"><div class="fw-bold">Re-select Folder (Recommended)</div><small class="text-dark opacity-75">Get fresh data with latest changes</small></div></div><i class="bi bi-arrow-right"></i></div>
+                      <div class="d-flex align-items-center justify-content-between"><div class="d-flex align-items-center"><i class="bi bi-folder-plus fs-4 me-3"></i><div class="text-start"><div class="fw-bold" data-i18n="refresh.reselect">Re-select Folder (Recommended)</div><small class="text-dark opacity-75" data-i18n="refresh.reselectSub">Get fresh data with latest changes</small></div></div><i class="bi bi-arrow-right"></i></div>
                     </button>
                   </div>
                   <div class="col-12">
                     <button class="btn btn-outline-farm-accent w-100 py-3" onclick="dashboard.confirmRefreshData(false)" data-bs-dismiss="modal">
-                      <div class="d-flex align-items-center justify-content-between"><div class="d-flex align-items-center"><i class="bi bi-arrow-clockwise fs-4 me-3"></i><div class="text-start"><div class="fw-bold">Refresh Display Only</div><small class="text-muted">Use cached data (no file changes)</small></div></div><i class="bi bi-arrow-right"></i></div>
+                      <div class="d-flex align-items-center justify-content-between"><div class="d-flex align-items-center"><i class="bi bi-arrow-clockwise fs-4 me-3"></i><div class="text-start"><div class="fw-bold" data-i18n="refresh.display">Refresh Display Only</div><small class="text-muted" data-i18n="refresh.displaySub">Use cached data (no file changes)</small></div></div><i class="bi bi-arrow-right"></i></div>
                     </button>
                   </div>
                 </div>
               </div>
-              <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button></div>
+              <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="common.cancel">Cancel</button></div>
             </div>
           </div>
         </div>
@@ -494,9 +494,9 @@
         <div class="modal fade" id="warningModal" tabindex="-1" aria-hidden="true">
           <div class="modal-dialog modal-lg">
             <div class="modal-content bg-dark text-light">
-              <div class="modal-header"><h5 class="modal-title" id="warningModalLabel"><i class="bi bi-exclamation-triangle me-2 text-warning"></i>Warning Details</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+              <div class="modal-header"><h5 class="modal-title" id="warningModalLabel"><i class="bi bi-exclamation-triangle me-2 text-warning"></i><span data-i18n="warning.title">Warning Details</span></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
               <div class="modal-body"><div id="warningDetailsContent"></div></div>
-              <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
+              <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="common.close">Close</button></div>
             </div>
           </div>
         </div>
@@ -504,9 +504,9 @@
         <div class="modal fade" id="animalDetailsModal" tabindex="-1" aria-hidden="true">
           <div class="modal-dialog modal-xl">
             <div class="modal-content bg-dark text-light">
-              <div class="modal-header bg-farm-primary"><h5 class="modal-title" id="animalDetailsModalLabel"><i class="bi bi-clipboard-data me-2"></i>Animal Details</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+              <div class="modal-header bg-farm-primary"><h5 class="modal-title" id="animalDetailsModalLabel"><i class="bi bi-clipboard-data me-2"></i><span data-i18n="animal.title">Animal Details</span></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
               <div class="modal-body"><div id="animalDetailsContent"></div></div>
-              <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
+              <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="common.close">Close</button></div>
             </div>
           </div>
         </div>
@@ -515,9 +515,9 @@
       <div class="modal fade" id="pasturelivestock-modal" tabindex="-1">
         <div class="modal-dialog modal-xl">
           <div class="modal-content bg-dark text-light">
-            <div class="modal-header border-bottom border-secondary"><h5 class="modal-title" id="pastureModal-title"><i class="bi bi-table me-2"></i>Pasture Livestock</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header border-bottom border-secondary"><h5 class="modal-title" id="pastureModal-title"><i class="bi bi-table me-2"></i><span data-i18n="pastureModal.title">Pasture Livestock</span></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
             <div class="modal-body"><div id="pasture-livestock-table-container"></div></div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="common.close">Close</button></div>
           </div>
         </div>
       </div>
@@ -525,14 +525,14 @@
       <div class="modal fade" id="dataChangesModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl">
           <div class="modal-content bg-dark text-light">
-            <div class="modal-header border-farm-accent"><h5 class="modal-title text-farm-accent"><i class="bi bi-arrow-repeat me-2"></i>Save Data Changes</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header border-farm-accent"><h5 class="modal-title text-farm-accent"><i class="bi bi-arrow-repeat me-2"></i><span data-i18n="changes.title">Save Data Changes</span></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
-              <div class="row"><div class="col-12"><p class="text-muted mb-4"><i class="bi bi-info-circle me-1"></i>Changes detected since last refresh:</p></div></div>
+              <div class="row"><div class="col-12"><p class="text-muted mb-4"><i class="bi bi-info-circle me-1"></i><span data-i18n="changes.intro">Changes detected since last refresh:</span></p></div></div>
               <div class="row mb-4" id="changesSummaryCards"></div>
               <ul class="nav nav-pills mb-3" id="changesTabList" role="tablist">
-                <li class="nav-item" role="presentation"><button class="nav-link active" id="livestock-changes-tab" data-bs-toggle="pill" data-bs-target="#livestock-changes" type="button" role="tab"><i class="bi bi-cow me-1"></i>Livestock</button></li>
-                <li class="nav-item" role="presentation"><button class="nav-link" id="warnings-changes-tab" data-bs-toggle="pill" data-bs-target="#warnings-changes" type="button" role="tab"><i class="bi bi-exclamation-triangle me-1"></i>Warnings</button></li>
-                <li class="nav-item" role="presentation"><button class="nav-link" id="statistics-changes-tab" data-bs-toggle="pill" data-bs-target="#statistics-changes" type="button" role="tab"><i class="bi bi-graph-up me-1"></i>Statistics</button></li>
+                <li class="nav-item" role="presentation"><button class="nav-link active" id="livestock-changes-tab" data-bs-toggle="pill" data-bs-target="#livestock-changes" type="button" role="tab"><i class="bi bi-cow me-1"></i><span data-i18n="tab.livestock">Livestock</span></button></li>
+                <li class="nav-item" role="presentation"><button class="nav-link" id="warnings-changes-tab" data-bs-toggle="pill" data-bs-target="#warnings-changes" type="button" role="tab"><i class="bi bi-exclamation-triangle me-1"></i><span data-i18n="tab.warnings">Warnings</span></button></li>
+                <li class="nav-item" role="presentation"><button class="nav-link" id="statistics-changes-tab" data-bs-toggle="pill" data-bs-target="#statistics-changes" type="button" role="tab"><i class="bi bi-graph-up me-1"></i><span data-i18n="tab.statistics">Statistics</span></button></li>
               </ul>
               <div class="tab-content" id="changesTabContent">
                 <div class="tab-pane fade show active" id="livestock-changes" role="tabpanel"><div id="livestockChangesContent"></div></div>
@@ -540,7 +540,7 @@
                 <div class="tab-pane fade" id="statistics-changes" role="tabpanel"><div id="statisticsChangesContent"></div></div>
               </div>
             </div>
-            <div class="modal-footer border-farm-accent"><button type="button" class="btn btn-outline-farm-accent" data-bs-dismiss="modal">Close</button></div>
+            <div class="modal-footer border-farm-accent"><button type="button" class="btn btn-outline-farm-accent" data-bs-dismiss="modal" data-i18n="common.close">Close</button></div>
           </div>
         </div>
       </div>
@@ -549,37 +549,41 @@
       <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark text-light">
           <div class="modal-header border-bottom border-secondary">
-            <h5 class="modal-title"><i class="bi bi-palette me-2 text-farm-accent"></i>Theme & Color Settings</h5>
+            <h5 class="modal-title"><i class="bi bi-palette me-2 text-farm-accent"></i><span data-i18n="theme.modalTitle">Theme & Color Settings</span></h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label class="form-label">Select Tab to Customize:</label>
+              <label class="form-label" data-i18n="theme.language">Language</label>
+              <select class="form-select bg-secondary text-light border-secondary mb-3" id="farmdash-language-select"></select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" data-i18n="theme.selectTab">Select Tab to Customize:</label>
               <select class="form-select bg-secondary text-light border-secondary" id="theme-tab-selector" onchange="dashboard.loadThemeEditor()">
-                <option value="global">Global Default</option>
-                <option value="livestock">Livestock Tab</option>
-                <option value="vehicles">Vehicles Tab</option>
-                <option value="fields">Fields Tab</option>
-                <option value="economy">Economy Tab</option>
-                <option value="pastures">Pastures Tab</option>
+                <option value="global" data-i18n="theme.tabGlobal">Global Default</option>
+                <option value="livestock" data-i18n="theme.tabLivestock">Livestock Tab</option>
+                <option value="vehicles" data-i18n="theme.tabVehicles">Vehicles Tab</option>
+                <option value="fields" data-i18n="theme.tabFields">Fields Tab</option>
+                <option value="economy" data-i18n="theme.tabEconomy">Economy Tab</option>
+                <option value="pastures" data-i18n="theme.tabPastures">Pastures Tab</option>
               </select>
             </div>
 
             <div class="row g-3 mt-2">
               <div class="col-md-6">
-                <label class="form-label">Background Color</label>
+                <label class="form-label" data-i18n="theme.bg">Background Color</label>
                 <input type="color" class="form-control form-control-color bg-secondary border-0 w-100" id="color-bg">
               </div>
               <div class="col-md-6">
-                <label class="form-label">Panel / Card Color</label>
+                <label class="form-label" data-i18n="theme.panel">Panel / Card Color</label>
                 <input type="color" class="form-control form-control-color bg-secondary border-0 w-100" id="color-panel">
               </div>
               <div class="col-md-6">
-                <label class="form-label">Primary Header Color</label>
+                <label class="form-label" data-i18n="theme.primary">Primary Header Color</label>
                 <input type="color" class="form-control form-control-color bg-secondary border-0 w-100" id="color-primary">
               </div>
               <div class="col-md-6">
-                <label class="form-label">Accent / Button Color</label>
+                <label class="form-label" data-i18n="theme.accent">Accent / Button Color</label>
                 <input type="color" class="form-control form-control-color bg-secondary border-0 w-100" id="color-accent">
               </div>
             </div>
@@ -588,16 +592,16 @@
             
             <div class="d-flex justify-content-between">
               <button type="button" class="btn btn-warning btn-sm" onclick="dashboard.applyThemeToAllTabs()">
-                <i class="bi bi-layers-fill me-1"></i> Copy to All Tabs
+                <i class="bi bi-layers-fill me-1"></i> <span data-i18n="theme.copyAll">Copy to All Tabs</span>
               </button>
               <button type="button" class="btn btn-outline-danger btn-sm" onclick="dashboard.resetThemeToDefaults()">
-                <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Defaults
+                <i class="bi bi-arrow-counterclockwise me-1"></i> <span data-i18n="theme.reset">Reset Defaults</span>
               </button>
             </div>
           </div>
           <div class="modal-footer border-top border-secondary">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-farm-accent" onclick="dashboard.saveCurrentTheme()">Save Theme</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="theme.close">Close</button>
+            <button type="button" class="btn btn-farm-accent" onclick="dashboard.saveCurrentTheme()" data-i18n="theme.save">Save Theme</button>
           </div>
         </div>
       </div>
@@ -649,11 +653,11 @@
       <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark text-light">
           <div class="modal-header border-bottom border-secondary">
-            <h5 class="modal-title"><i class="bi bi-bell me-2 text-farm-accent"></i>Notification History</h5>
+            <h5 class="modal-title"><i class="bi bi-bell me-2 text-farm-accent"></i><span data-i18n="notif.title">Notification History</span></h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
-          <div class="modal-body"><div id="notificationHistoryContent"><div class="text-center text-muted py-4"><i class="bi bi-bell-slash fs-1 mb-3"></i><p>No notifications yet</p></div></div></div>
-          <div class="modal-footer border-top border-secondary"><button type="button" class="btn btn-outline-light" id="clearNotificationsBtn"><i class="bi bi-trash me-1"></i>Clear All</button><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
+          <div class="modal-body"><div id="notificationHistoryContent"><div class="text-center text-muted py-4"><i class="bi bi-bell-slash fs-1 mb-3"></i><p data-i18n="notif.none">No notifications yet</p></div></div></div>
+          <div class="modal-footer border-top border-secondary"><button type="button" class="btn btn-outline-light" id="clearNotificationsBtn"><i class="bi bi-trash me-1"></i><span data-i18n="notif.clear">Clear All</span></button><button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="common.close">Close</button></div>
         </div>
       </div>
     </div>
@@ -663,7 +667,7 @@
         <div class="modal-content bg-dark text-light">
           <div class="modal-header bg-farm-primary"><h5 class="modal-title"><i class="bi bi-truck me-2"></i><span id="vehicleModalTitle">Vehicle</span></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
           <div class="modal-body text-center p-0"><img id="vehicleModalImage" src="" alt="Vehicle Image" class="img-fluid w-100" style="max-height: 40vh; object-fit: contain"/></div>
-          <div class="modal-footer"><div class="d-flex justify-content-between align-items-center w-100"><div><small class="text-muted" id="vehicleModalInfo"><i class="bi bi-info-circle me-1"></i>Click image to view full size</small></div><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div></div>
+          <div class="modal-footer"><div class="d-flex justify-content-between align-items-center w-100"><div><small class="text-muted" id="vehicleModalInfo"><i class="bi bi-info-circle me-1"></i><span data-i18n="vehicle.modalInfo">Click image to view full size</span></small></div><button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="common.close">Close</button></div></div>
         </div>
       </div>
     </div>
@@ -671,21 +675,21 @@
     <div class="modal fade" id="weatherForecastModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark text-light">
-          <div class="modal-header border-farm-accent"><h5 class="modal-title"><i class="bi bi-cloud-sun me-2"></i>Weather Forecast</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+          <div class="modal-header border-farm-accent"><h5 class="modal-title"><i class="bi bi-cloud-sun me-2"></i><span data-i18n="weather.title">Weather Forecast</span></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
           <div class="modal-body">
             <div class="card bg-farm-info bg-opacity-10 border-farm-info mb-3">
               <div class="card-body">
-                <h6 class="card-title text-farm-info"><i class="bi bi-geo-alt me-1"></i>Current Weather</h6>
+                <h6 class="card-title text-farm-info"><i class="bi bi-geo-alt me-1"></i><span data-i18n="weather.current">Current Weather</span></h6>
                 <div class="row">
                   <div class="col-6 text-center"><div class="display-4" id="modal-weather-icon"><i class="bi bi-sun"></i></div><div class="mt-2"><strong id="modal-weather-condition">--</strong></div></div>
                   <div class="col-6 d-flex align-items-center"><div><div class="display-6" id="modal-temperature">--°C</div><div class="mt-2"><small class="text-muted">Wind: <span id="modal-wind-speed">--</span> km/h<br>Cloud: <span id="modal-cloud-coverage">--</span>%<br>Rain: <span id="modal-rain-level">--</span>%</small></div></div></div>
                 </div>
               </div>
             </div>
-            <h6 class="text-farm-accent mb-3"><i class="bi bi-calendar-week me-1"></i>3-Day Forecast</h6>
+            <h6 class="text-farm-accent mb-3"><i class="bi bi-calendar-week me-1"></i><span data-i18n="weather.forecast">3-Day Forecast</span></h6>
             <div class="row" id="forecast-days"></div>
           </div>
-          <div class="modal-footer border-farm-accent"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
+          <div class="modal-footer border-farm-accent"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="common.close">Close</button></div>
         </div>
       </div>
     </div>
@@ -694,14 +698,14 @@
       <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content bg-dark text-light border border-secondary">
           <div class="modal-header border-secondary">
-            <h5 class="modal-title"><i class="bi bi-folder2-open me-2 text-farm-accent"></i>Import mod shop images</h5>
+            <h5 class="modal-title"><i class="bi bi-folder2-open me-2 text-farm-accent"></i><span data-i18n="modExport.title">Import mod shop images</span></h5>
           </div>
           <div class="modal-body">
             <p id="modExportProgressLabel" class="text-muted small mb-2">Starting…</p>
             <div class="progress mb-3" style="height: 26px">
               <div id="modExportProgressBar" class="progress-bar bg-farm-accent" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
-            <div class="small text-muted mb-1">Conversion log</div>
+            <div class="small text-muted mb-1" data-i18n="modExport.log">Conversion log</div>
             <pre id="modExportLog" class="bg-black border border-secondary rounded p-2 mb-0 text-secondary" style="max-height: 260px; overflow: auto; font-size: 11px; white-space: pre-wrap;"></pre>
           </div>
         </div>

@@ -1,5 +1,7 @@
 // FS25 FarmDashboard | livestock.js | v2.0.0
 
+import { t } from "../i18n/i18n.js";
+
 export function refreshAnimalData() {
   if (!this.savedFolderData || !this.savedFolderData.xmlData) {
     return;
@@ -816,10 +818,10 @@ export function toggleFilters() {
 
   if (panel.classList.contains("d-none")) {
     panel.classList.remove("d-none");
-    toggleBtn.innerHTML = '<i class="bi bi-chevron-up"></i> Hide Filters';
+    toggleBtn.innerHTML = `<i class="bi bi-chevron-up"></i> ${t("livestock.hideFilters")}`;
   } else {
     panel.classList.add("d-none");
-    toggleBtn.innerHTML = '<i class="bi bi-chevron-down"></i> Show Filters';
+    toggleBtn.innerHTML = `<i class="bi bi-chevron-down"></i> ${t("livestock.showFilters")}`;
   }
 }
 

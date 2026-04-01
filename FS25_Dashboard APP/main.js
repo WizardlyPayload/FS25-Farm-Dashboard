@@ -21,6 +21,33 @@ const { mergeData }      = require('./dataMerger');
 
 const store = new Store();
 
+const VALID_LOCALE_RE = /^[a-z]{2}$/;
+
+/** Written by the NSIS installer (first page); consumed on first app launch. */
+function consumeInstallLocaleFile() {
+    try {
+        const p = path.join(app.getPath('userData'), 'install-locale.txt');
+        if (!fs.existsSync(p)) return;
+        const raw = stripUtf8Bom(fs.readFileSync(p, 'utf8')).trim();
+        const code = (raw.split(/\r?\n/)[0] || '').substring(0, 2).toLowerCase();
+        if (VALID_LOCALE_RE.test(code)) store.set('locale', code);
+        fs.unlinkSync(p);
+    } catch (e) {
+        console.warn('[install-locale]', e.message);
+    }
+}
+
+function getSetupLoadOptions() {
+    const l = store.get('locale');
+    if (l && typeof l === 'string' && VALID_LOCALE_RE.test(l)) return { query: { lang: l } };
+    return {};
+}
+
+function loadSetupWindow() {
+    if (!mainWindow) return;
+    mainWindow.loadFile(path.join(__dirname, 'setup.html'), getSetupLoadOptions());
+}
+
 /** PowerShell 5.1 `Set-Content -Encoding utf8` writes UTF-8 BOM; JSON.parse rejects it. */
 function stripUtf8Bom(s) {
     if (typeof s !== 'string' || s.length === 0) return s;
@@ -674,10 +701,13 @@ function createWindow() {
 
     const config = store.get('config');
     if (config?.isConfigured) bootServer(config);
-    else mainWindow.loadFile(path.join(__dirname, 'setup.html'));
+    else loadSetupWindow();
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+    consumeInstallLocaleFile();
+    createWindow();
+});
 app.on('window-all-closed', () => { stopAllWatchers(); if (process.platform !== 'darwin') app.quit(); });
 
 // ── IPC ───────────────────────────────────────────────────────────────────────
@@ -698,6 +728,23 @@ ipcMain.on('save-settings', (event, newConfig) => {
 
 ipcMain.handle('get-current-config', () => store.get('config'));
 
+ipcMain.handle('get-stored-locale', () => {
+    const l = store.get('locale');
+    return l && typeof l === 'string' ? l : 'en';
+});
+
+ipcMain.handle('get-translations-json', () => {
+    const p = path.join(__dirname, 'web', 'locales', 'translations.json');
+    const raw = fs.readFileSync(p, 'utf8');
+    return JSON.parse(stripUtf8Bom(raw));
+});
+
+ipcMain.on('set-stored-locale', (_e, code) => {
+    if (typeof code === 'string' && VALID_LOCALE_RE.test(code.substring(0, 2))) {
+        store.set('locale', code.substring(0, 2).toLowerCase());
+    }
+});
+
 ipcMain.on('reset-settings', () => {
     store.delete('config');
     app.relaunch();
@@ -705,7 +752,7 @@ ipcMain.on('reset-settings', () => {
 });
 
 ipcMain.on('open-setup', () => {
-    if (mainWindow) mainWindow.loadFile(path.join(__dirname, 'setup.html'));
+    if (mainWindow) loadSetupWindow();
 });
 
 ipcMain.handle('scan-local-saves', async () => {

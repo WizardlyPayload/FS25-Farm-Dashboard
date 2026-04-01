@@ -1,5 +1,7 @@
 // FS25 FarmDashboard | navigation.js | v2.0.0
 
+import { t } from "../i18n/i18n.js";
+
 export function setupEventListeners() {
   const folderInput = document.getElementById("folder-input");
   const clearFolderBtn = document.getElementById("clear-folder-btn");
@@ -26,7 +28,7 @@ export function setupEventListeners() {
       modShopExportInFlight = true;
       const originalHtml = landingModImagesBtn.innerHTML;
       landingModImagesBtn.innerHTML =
-        '<i class="bi bi-hourglass-split me-1"></i>Scanning mods…';
+        `<i class="bi bi-hourglass-split me-1"></i>${t("landing.scanning")}`;
       let cleanupProgress = null;
       try {
         const { ipcRenderer } = require("electron");

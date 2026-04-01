@@ -2,6 +2,10 @@
 (function () {
   const MAX_LOG_LINES = 450;
 
+  function tr(key, fallback) {
+    return typeof window.t === "function" ? window.t(key) : fallback;
+  }
+
   function showModal() {
     const el = document.getElementById("modExportProgressModal");
     if (!el) return;
@@ -101,7 +105,7 @@
       appendLogLine(log, data.line || "");
     }
     if (data.type === "done" && label) {
-      label.textContent = "Finishing…";
+      label.textContent = tr("modExport.finishing", "Finishing…");
     }
   }
 

@@ -5,7 +5,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="author" content="JoshWalki, WizardlyPayload"/>
-  <title>Server Manager - FS25 Farm Dashboard</title>
+  <title data-setup-i18n="setup.pageTitle">Server Manager - FS25 Farm Dashboard</title>
   <style>
     /* Reset & base */
     *, *::before, *::after { box-sizing: border-box; }
@@ -164,7 +164,31 @@
     .server-item .info strong { display: block; color: #a6e3a1; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .server-item .info span   { font-size: 12px; color: #a6adc8; }
 
-    #empty-servers { text-align: center; color: #7f849c; font-size: 13px; font-style: italic; margin-top: 20px; }
+    #empty-servers { text-align: center; color: #7f849c; font-size: 13px; font-style: italic; margin-top: 20px; white-space: pre-line; }
+
+    .setup-lang-bar {
+      width: 920px;
+      max-width: 100%;
+      margin: 0 auto 20px;
+      padding: 16px 20px;
+      background: #313244;
+      border-radius: 12px;
+      border: 1px solid #89b4fa;
+      box-shadow: 0 4px 20px rgba(137, 180, 250, 0.12);
+    }
+    .setup-lang-bar label { pointer-events: auto; color: #89b4fa; font-size: 15px; }
+    .setup-lang-select {
+      width: 100%;
+      max-width: 440px;
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #45475a;
+      background: #1e1e2e;
+      color: #cdd6f4;
+      font-size: 14px;
+      cursor: pointer;
+    }
 
     .section-divider { border: none; border-top: 1px solid #45475a; margin: 18px 0; }
 
@@ -262,37 +286,45 @@
 </head>
 <body>
 
+<div class="setup-lang-bar">
+  <label for="setup-lang-select" data-setup-i18n="setup.langHeading">Language</label>
+  <p class="hint" style="margin:6px 0 0 0;max-width:52rem;line-height:1.45;" data-setup-i18n="setup.langHint">Choose your language first. This matches the Windows installer step and the in-dashboard setting.</p>
+  <select id="setup-lang-select" class="setup-lang-select" aria-label="Language"></select>
+</div>
+
 <div class="container">
 
   <!-- LEFT: server list -->
   <div class="left-panel">
-    <h2>⚙️ Server Manager</h2>
+    <h2 data-setup-i18n="setup.serverManager">⚙️ Server Manager</h2>
 
     <div id="server-list"></div>
-    <div id="empty-servers">No servers added yet.<br><br>Use Auto-Detect or add one manually →</div>
+    <div id="empty-servers" data-setup-i18n="setup.emptyServers">No servers added yet.
+
+Use Auto-Detect or add one manually →</div>
 
     <hr class="section-divider"/>
 
-    <h3 style="margin:0 0 8px;color:#89b4fa;font-size:16px;">FTP polling</h3>
-    <p class="hint" style="margin-bottom:12px;">
+    <h3 style="margin:0 0 8px;color:#89b4fa;font-size:16px;" data-setup-i18n="setup.ftpHeading">FTP polling</h3>
+    <p class="hint" style="margin-bottom:12px;" data-setup-i18n="setup.ftpPollHint">
       Applies to dedicated (FTP) servers. Local saves use file watching, not this schedule.
     </p>
     <div class="form-group">
-      <label for="ftpInitialDelay">Delay before first poll (seconds)</label>
+      <label for="ftpInitialDelay" data-setup-i18n="setup.delayLabel">Delay before first poll (seconds)</label>
       <input type="number" id="ftpInitialDelay" min="0" max="600" value="0"/>
     </div>
     <div class="form-group">
-      <label for="ftpIntervalMinutes">Poll every (minutes)</label>
+      <label for="ftpIntervalMinutes" data-setup-i18n="setup.pollLabel">Poll every (minutes)</label>
       <input type="number" id="ftpIntervalMinutes" min="1" max="25" value="5"/>
-      <div class="hint">Full cycle length: 1–25 min.</div>
+      <div class="hint" data-setup-i18n="setup.pollCycleHint">Full cycle length: 1–25 min.</div>
     </div>
     <div class="radio-group" style="flex-direction:column;align-items:flex-start;gap:10px;padding-bottom:8px;">
-      <label><input type="radio" name="ftpSchedule" value="sync" checked/> Each cycle: poll all FTP servers at once</label>
-      <label><input type="radio" name="ftpSchedule" value="staggered"/> Staggered: one FTP server per equal slice across the interval</label>
+      <label><input type="radio" name="ftpSchedule" value="sync" checked/> <span data-setup-i18n="setup.scheduleSync">Each cycle: poll all FTP servers at once</span></label>
+      <label><input type="radio" name="ftpSchedule" value="staggered"/> <span data-setup-i18n="setup.scheduleStaggered">Staggered: one FTP server per equal slice across the interval</span></label>
     </div>
 
     <button class="btn-launch" id="launchBtn" onclick="saveAndLaunch()">
-      🚀 Launch Dashboard
+      🚀 <span data-setup-i18n="setup.launch">Launch Dashboard</span>
     </button>
   </div>
 
@@ -300,44 +332,42 @@
   <div class="right-panel">
 
     <button class="btn-magic" id="detectBtn" onclick="autoDetectSaves()">
-      ✨ Auto-Detect Local Saves
+      ✨ <span data-setup-i18n="setup.autoDetect">Auto-Detect Local Saves</span>
     </button>
 
     <button type="button" class="btn-magic" id="modImagesBtn" onclick="scanModImagesForDashboard()"
             style="background: linear-gradient(135deg, #cba6f7 0%, #89b4fa 100%); margin-bottom: 22px;">
-      📷 Scan FS25 mods for dashboard images
+      📷 <span data-setup-i18n="setup.modImages">Scan FS25 mods for dashboard images</span>
     </button>
-    <p class="hint" style="margin-top: -14px; margin-bottom: 18px;">
-      Copies shop-style PNGs and converts <code class="text-light">icon_*.dds</code> from your FS25 mods folder into the dashboard
-      (<code class="text-light">items_mod_extract</code>). DDS conversion uses ImageMagick if installed, or
-      <code class="text-light">texconv.exe</code> placed in the app <code class="text-light">resources/texconv</code> folder.
+    <p class="hint" style="margin-top: -14px; margin-bottom: 18px;" data-setup-i18n="setup.modImagesHint">
+      Copies shop-style PNGs and converts icon_*.dds from your FS25 mods folder into the dashboard (items_mod_extract). DDS conversion uses ImageMagick if installed, or texconv.exe placed in the app resources/texconv folder.
     </p>
 
-    <h3 class="section-heading">Add Server Manually</h3>
+    <h3 class="section-heading" data-setup-i18n="setup.addManual">Add Server Manually</h3>
 
     <div class="form-group">
-      <label for="serverName">Display Name</label>
+      <label for="serverName" data-setup-i18n="setup.displayName">Display Name</label>
       <input type="text" id="serverName" placeholder="e.g., My Elmcreek Save" autocomplete="off"/>
     </div>
 
     <div class="radio-group">
-      <label><input type="radio" name="mode" value="local" checked onchange="toggleMode()"> Local PC</label>
-      <label><input type="radio" name="mode" value="ftp"   onchange="toggleMode()"> Dedicated Server (FTP)</label>
+      <label><input type="radio" name="mode" value="local" checked onchange="toggleMode()"> <span data-setup-i18n="setup.modeLocal">Local PC</span></label>
+      <label><input type="radio" name="mode" value="ftp"   onchange="toggleMode()"> <span data-setup-i18n="setup.modeFtp">Dedicated Server (FTP)</span></label>
     </div>
 
     <!-- LOCAL -->
     <div id="local-fields">
       <div class="form-group">
-        <label for="localPath">modSettings Base Path <span class="optional-badge">optional</span></label>
+        <label for="localPath"><span data-setup-i18n="setup.localPath">modSettings Base Path</span> <span class="optional-badge">optional</span></label>
         <input type="text" id="localPath"
                placeholder="C:\Users\...\FarmingSimulator2025\modSettings\FS25_FarmDashboard"
                autocomplete="off"/>
-        <div class="hint">Leave blank to use the default Documents path.</div>
+        <div class="hint" data-setup-i18n="setup.localHint">Leave blank to use the default Documents path.</div>
       </div>
       <div class="form-group">
-        <label for="localSubFolder">Savegame Folder <span class="optional-badge">optional</span></label>
+        <label for="localSubFolder"><span data-setup-i18n="setup.saveFolder">Savegame Folder</span> <span class="optional-badge">optional</span></label>
         <input type="text" id="localSubFolder" placeholder="e.g., savegame1" autocomplete="off"/>
-        <div class="hint">Leave blank to use the Display Name as the folder name.</div>
+        <div class="hint" data-setup-i18n="setup.saveHint">Leave blank to use the Display Name as the folder name.</div>
       </div>
     </div>
 
@@ -345,73 +375,74 @@
     <div id="ftp-fields">
       <div class="row-flex">
         <div class="form-group wide">
-          <label for="ftpHost">FTP Host / IP</label>
+          <label for="ftpHost" data-setup-i18n="setup.ftpHost">FTP Host / IP</label>
           <input type="text" id="ftpHost" placeholder="e.g., ftp.gportal.com" autocomplete="off"/>
         </div>
         <div class="form-group narrow">
-          <label for="ftpPort">Port</label>
+          <label for="ftpPort" data-setup-i18n="setup.ftpPort">Port</label>
           <input type="number" id="ftpPort" value="21"/>
         </div>
       </div>
       <div class="row-flex">
         <div class="form-group">
-          <label for="ftpUser">Username</label>
+          <label for="ftpUser" data-setup-i18n="setup.ftpUser">Username</label>
           <input type="text" id="ftpUser" autocomplete="off"/>
         </div>
         <div class="form-group">
-          <label for="ftpPass">Password</label>
+          <label for="ftpPass" data-setup-i18n="setup.ftpPass">Password</label>
           <input type="password" id="ftpPass" autocomplete="new-password"/>
         </div>
       </div>
       <div class="form-group">
-        <label for="ftpBasePath">Base Profile Path</label>
+        <label for="ftpBasePath" data-setup-i18n="setup.basePath">Base Profile Path</label>
         <input type="text" id="ftpBasePath" value="profile" autocomplete="off"/>
       </div>
       <div class="form-group">
-        <label for="ftpSubFolder">Savegame Slot Folder</label>
+        <label for="ftpSubFolder" data-setup-i18n="setup.slotFolder">Savegame Slot Folder</label>
         <input type="text" id="ftpSubFolder" placeholder="e.g., savegame1" autocomplete="off"/>
-        <div class="hint">Which slot the mod writes data.json into.</div>
+        <div class="hint" data-setup-i18n="setup.slotHint">Which slot the mod writes data.json into.</div>
       </div>
 
       <hr class="section-divider"/>
 
-      <h4>HTTP Feed <span class="optional-badge">optional — for richer XML data</span></h4>
-      <p class="hint" style="margin-bottom:12px;">
+      <h4><span data-setup-i18n="setup.httpHeading">HTTP Feed</span> <span class="optional-badge">optional — for richer XML data</span></h4>
+      <p class="hint" style="margin-bottom:12px;" data-setup-i18n="setup.httpHint">
         If your dedicated server exposes the Giants HTTP feed, enter the details below.
         Provides vehicle age, prices and crop price history. Leave blank to use Lua-only mode.
       </p>
 
       <div class="row-flex">
         <div class="form-group wide">
-          <label for="httpFeedHost">Server IP / Host</label>
+          <label for="httpFeedHost" data-setup-i18n="setup.httpHost">Server IP / Host</label>
           <input type="text" id="httpFeedHost" placeholder="e.g., 149.102.148.127" autocomplete="off"/>
         </div>
         <div class="form-group narrow">
-          <label for="httpFeedPort">HTTP Port</label>
+          <label for="httpFeedPort" data-setup-i18n="setup.httpPort">HTTP Port</label>
           <input type="number" id="httpFeedPort" value="8080"/>
         </div>
       </div>
       <div class="form-group">
-        <label for="httpFeedCode">Feed Access Code</label>
+        <label for="httpFeedCode" data-setup-i18n="setup.feedCode">Feed Access Code</label>
         <input type="text" id="httpFeedCode" placeholder="e.g., EyT1GC4XDQNi5Cm5" autocomplete="off"/>
       </div>
     </div>
 
-    <button class="btn-add" onclick="addServer()">+ Add Server</button>
+    <button class="btn-add" onclick="addServer()">+ <span data-setup-i18n="setup.addServer">Add Server</span></button>
 
   </div><!-- /right-panel -->
 </div><!-- /container -->
 
 <div id="modExportProgressModal" class="fd-modexp-overlay" style="display: none" aria-hidden="true">
   <div class="fd-modexp-panel">
-    <h3 class="fd-modexp-title">Import mod shop images</h3>
+    <h3 class="fd-modexp-title" data-setup-i18n="setup.modexpTitle">Import mod shop images</h3>
     <p id="modExportProgressLabel" class="fd-modexp-status">Starting…</p>
     <div class="fd-modexp-bar-wrap"><div id="modExportProgressBar" class="fd-modexp-bar-fill" style="width: 0%"></div></div>
-    <div class="fd-modexp-log-label">Conversion log</div>
+    <div class="fd-modexp-log-label" data-setup-i18n="setup.modexpLog">Conversion log</div>
     <pre id="modExportLog" class="fd-modexp-log"></pre>
   </div>
 </div>
 
+<script src="web/assests/js/setup-i18n.js"></script>
 <script src="web/assests/js/modExportProgress.js"></script>
 <script>
 // nodeIntegration is true so require('electron') works here.
@@ -475,6 +506,7 @@ function renderServers() {
     const info = srv.mode === 'local'
       ? '📁 Local: ' + (srv.localSubFolder || srv.name)
       : '🌐 FTP: ' + srv.ftpHost + (srv.httpFeedHost ? ' + HTTP Feed' : '');
+    var removeLabel = (typeof window.setupT === 'function') ? window.setupT('setup.remove') : 'Remove';
 
     const item = document.createElement('div');
     item.className = 'server-item';
@@ -483,7 +515,7 @@ function renderServers() {
         '<strong>' + escHtml(srv.name) + '</strong>' +
         '<span>' + escHtml(info) + '</span>' +
       '</div>' +
-      '<button class="btn-delete" data-idx="' + i + '">Remove</button>';
+      '<button class="btn-delete" data-idx="' + i + '">' + escHtml(removeLabel) + '</button>';
     list.appendChild(item);
   });
 

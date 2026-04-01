@@ -1,0 +1,1093 @@
+{
+  "version": 1,
+  "strings": {
+    "page.title": {
+      "en": "Farming Dashboard",
+      "de": "Farm-Dashboard",
+      "fr": "Tableau de bord agricole",
+      "es": "Panel agrícola",
+      "it": "Cruscotto agricolo",
+      "pl": "Panel rolniczy",
+      "nl": "Landbouwdashboard",
+      "pt": "Painel agrícola"
+    },
+    "nav.brand": {
+      "en": "Farm Dashboard",
+      "de": "Farm-Dashboard",
+      "fr": "Tableau de bord",
+      "es": "Panel de granja",
+      "it": "Cruscotto",
+      "pl": "Panel farmy",
+      "nl": "Farmdashboard",
+      "pt": "Painel da quinta",
+      "sv": "Gårdspanel",
+      "da": "Farm-dashboard",
+      "fi": "Maatilan hallinta",
+      "cs": "Panel farmy",
+      "el": "Πίνακας αγροκτήματος",
+      "hu": "Farm irányító",
+      "ro": "Panou fermă",
+      "bg": "Фермерски панел",
+      "hr": "Farm panel",
+      "sk": "Panel farmy",
+      "sl": "Kmetijska plošča",
+      "et": "Talupaneel",
+      "lv": "Saimniecības panelis",
+      "lt": "Ūkio skydelis",
+      "ga": "Painéal Feirme",
+      "mt": "Pannell tal-ferma",
+      "is": "Bændaspjald",
+      "nb": "Gårdspanel",
+      "uk": "Фермерська панель"
+    },
+    "nav.loading": {
+      "en": "Loading...",
+      "de": "Lädt...",
+      "fr": "Chargement...",
+      "es": "Cargando..."
+    },
+    "nav.dataSource": {
+      "en": "Data source",
+      "de": "Datenquelle",
+      "fr": "Source des données"
+    },
+    "nav.online": {
+      "en": "Online",
+      "de": "Online",
+      "fr": "En ligne"
+    },
+    "nav.theme": {
+      "en": "Theme settings",
+      "de": "Design-Einstellungen",
+      "fr": "Thème"
+    },
+    "nav.settings": {
+      "en": "Server settings",
+      "de": "Server-Einstellungen",
+      "fr": "Paramètres serveur"
+    },
+    "nav.home": {
+      "en": "Home",
+      "de": "Start",
+      "fr": "Accueil",
+      "es": "Inicio",
+      "it": "Home",
+      "pl": "Start",
+      "nl": "Home",
+      "pt": "Início",
+      "sv": "Hem",
+      "da": "Hjem",
+      "fi": "Etusivu",
+      "cs": "Domů",
+      "el": "Αρχική",
+      "hu": "Kezdőlap",
+      "ro": "Acasă",
+      "bg": "Начало",
+      "hr": "Početna",
+      "sk": "Domov",
+      "sl": "Domov",
+      "et": "Avaleht",
+      "lv": "Sākums",
+      "lt": "Pradžia",
+      "ga": "Baile",
+      "mt": "Dar",
+      "is": "Heim",
+      "nb": "Hjem",
+      "uk": "Головна"
+    },
+    "folder.title": {
+      "en": "Oops — something went wrong",
+      "de": "Etwas ist schiefgelaufen",
+      "fr": "Un problème est survenu",
+      "es": "Algo salió mal",
+      "it": "Qualcosa è andato storto",
+      "pl": "Coś poszło nie tak",
+      "nl": "Er ging iets mis",
+      "pt": "Algo correu mal"
+    },
+    "folder.p1": {
+      "en": "We couldn’t connect to the dashboard API. Check that the game is running with the mod, or go back to <strong>Home</strong> to add or change server settings and browse local saves.",
+      "de": "Verbindung zur Dashboard-API fehlgeschlagen. Prüfen Sie, ob das Spiel mit Mod läuft, oder gehen Sie zu <strong>Start</strong>, um Servereinstellungen zu ändern und lokale Speicherstände zu öffnen.",
+      "fr": "Connexion à l’API du tableau de bord impossible. Vérifiez que le jeu tourne avec le mod, ou retournez à l’<strong>accueil</strong> pour les paramètres serveur et les sauvegardes locales."
+    },
+    "folder.p2": {
+      "en": "If this keeps happening, try restarting <code class=\"text-light\">start-dashboard.bat</code> or your server.",
+      "de": "Wenn das weiter passiert, starten Sie <code class=\"text-light\">start-dashboard.bat</code> oder den Server neu.",
+      "fr": "Si cela continue, redémarrez <code class=\"text-light\">start-dashboard.bat</code> ou le serveur."
+    },
+    "folder.backHome": {
+      "en": "Back to Home",
+      "de": "Zurück zur Startseite",
+      "fr": "Retour à l'accueil",
+      "es": "Volver al inicio"
+    },
+    "folder.returnLink": {
+      "en": "Return to home",
+      "de": "Zurück zum Start",
+      "fr": "Retour à l'accueil"
+    },
+    "folder.noFolder": {
+      "en": "No folder selected",
+      "de": "Kein Ordner gewählt",
+      "fr": "Aucun dossier sélectionné"
+    },
+    "folder.clearData": {
+      "en": "Clear Saved Data",
+      "de": "Gespeicherte Daten löschen",
+      "fr": "Effacer les données"
+    },
+    "landing.title": {
+      "en": "Farm Management Dashboard",
+      "de": "Farm-Management-Dashboard",
+      "fr": "Gestion de ferme",
+      "es": "Panel de gestión agrícola",
+      "it": "Cruscotto gestione azienda",
+      "pl": "Panel zarządzania gospodarstwem",
+      "nl": "Bedrijfsdashboard",
+      "pt": "Painel de gestão agrícola",
+      "sv": "Gårdsdashboard",
+      "da": "Farm-styring",
+      "fi": "Maatilan hallintapaneeli",
+      "cs": "Řízení farmy",
+      "el": "Διαχείριση αγροκτήματος",
+      "hu": "Farm kezelő",
+      "ro": "Gestionare fermă",
+      "bg": "Управление на ферма",
+      "hr": "Upravljanje farmom",
+      "sk": "Riadenie farmy",
+      "sl": "Upravljanje kmetije",
+      "et": "Talumajandus",
+      "lv": "Saimniecības vadība",
+      "lt": "Ūkio valdymas",
+      "ga": "Bainistíocht Feirme",
+      "mt": "Ġestjoni tal-ferma",
+      "is": "Bændastýring",
+      "nb": "Gårdsstyring",
+      "uk": "Керування фермою"
+    },
+    "landing.lead": {
+      "en": "Select a section below to manage your farm data",
+      "de": "Wählen Sie unten einen Bereich zur Verwaltung Ihrer Farmdaten",
+      "fr": "Choisissez une section pour gérer vos données",
+      "es": "Seleccione una sección para gestionar sus datos"
+    },
+    "landing.gameLoading": {
+      "en": "Loading game time...",
+      "de": "Spielzeit wird geladen...",
+      "fr": "Chargement du temps de jeu..."
+    },
+    "landing.importMods": {
+      "en": "Import mod shop images",
+      "de": "Mod-Shop-Bilder importieren",
+      "fr": "Importer images boutique mods"
+    },
+    "landing.scanning": {
+      "en": "Scanning mods…",
+      "de": "Mods werden gescannt…",
+      "fr": "Analyse des mods…"
+    },
+    "card.livestock": {
+      "en": "Livestock",
+      "de": "Vieh",
+      "fr": "Élevage",
+      "es": "Ganadería",
+      "it": "Bestiame",
+      "pl": "Zwierzęta",
+      "nl": "Vee",
+      "pt": "Gado",
+      "sv": "Boskap",
+      "da": "Husdyr",
+      "fi": "Kotieläimet",
+      "cs": "Dobytek",
+      "el": "Ζώα",
+      "hu": "Állatok",
+      "ro": "Animale",
+      "bg": "Животни",
+      "hr": "Stoka",
+      "sk": "Dobytok",
+      "sl": "Živina",
+      "et": "Koduloomad",
+      "lv": "Lopkopība",
+      "lt": "Gyvuliai",
+      "ga": "Stoc",
+      "mt": "Annimali",
+      "is": "Búfé",
+      "nb": "Husdyr",
+      "uk": "Тварини"
+    },
+    "card.livestockDesc": {
+      "en": "Manage your animals, track health, breeding, and locations",
+      "de": "Tiere verwalten, Gesundheit, Zucht und Standorte",
+      "fr": "Animaux, santé, reproduction et lieux"
+    },
+    "card.vehicles": {
+      "en": "Vehicles",
+      "de": "Fahrzeuge",
+      "fr": "Véhicules",
+      "es": "Vehículos",
+      "it": "Veicoli",
+      "pl": "Pojazdy",
+      "nl": "Voertuigen",
+      "pt": "Veículos",
+      "sv": "Fordon",
+      "da": "Køretøjer",
+      "fi": "Ajoneuvot",
+      "cs": "Vozidla",
+      "el": "Οχήματα",
+      "hu": "Járművek",
+      "ro": "Vehicule",
+      "bg": "Превозни средства",
+      "hr": "Vozila",
+      "sk": "Vozidlá",
+      "sl": "Vozila",
+      "et": "Sõidukid",
+      "lv": "Transportlīdzekļi",
+      "lt": "Transportas",
+      "ga": "Feithiclí",
+      "mt": "Vetturi",
+      "is": "Ökutæki",
+      "nb": "Kjøretøy",
+      "uk": "Транспорт"
+    },
+    "card.vehiclesDesc": {
+      "en": "View your fleet, maintenance status, and operating times",
+      "de": "Flotte, Wartung und Betriebszeiten",
+      "fr": "Parc, entretien et heures"
+    },
+    "card.fields": {
+      "en": "Fields",
+      "de": "Felder",
+      "fr": "Champs",
+      "es": "Campos",
+      "it": "Campi",
+      "pl": "Pola",
+      "nl": "Velden",
+      "pt": "Campos",
+      "sv": "Fält",
+      "da": "Marker",
+      "fi": "Pellot",
+      "cs": "Pole",
+      "el": "Χωράφια",
+      "hu": "Földek",
+      "ro": "Câmpuri",
+      "bg": "Полета",
+      "hr": "Polja",
+      "sk": "Polia",
+      "sl": "Njive",
+      "et": "Põllud",
+      "lv": "Lauki",
+      "lt": "Laukai",
+      "ga": "Gortanna",
+      "mt": "Qasam",
+      "is": "Akurar",
+      "nb": "Åkre",
+      "uk": "Поля"
+    },
+    "card.fieldsDesc": {
+      "en": "Monitor crop growth, soil conditions, and field management",
+      "de": "Wachstum, Boden und Feldführung",
+      "fr": "Cultures, sol et gestion"
+    },
+    "card.economy": {
+      "en": "Economy",
+      "de": "Wirtschaft",
+      "fr": "Économie",
+      "es": "Economía",
+      "it": "Economia",
+      "pl": "Gospodarka",
+      "nl": "Economie",
+      "pt": "Economia",
+      "sv": "Ekonomi",
+      "da": "Økonomi",
+      "fi": "Talous",
+      "cs": "Ekonomika",
+      "el": "Οικονομία",
+      "hu": "Gazdaság",
+      "ro": "Economie",
+      "bg": "Икономика",
+      "hr": "Gospodarstvo",
+      "sk": "Ekonomika",
+      "sl": "Gospodarstvo",
+      "et": "Majandus",
+      "lv": "Ekonomika",
+      "lt": "Ekonomika",
+      "ga": "Geilleagar",
+      "mt": "Ekonomija",
+      "is": "Efnahagur",
+      "nb": "Økonomi",
+      "uk": "Економіка"
+    },
+    "card.economyDesc": {
+      "en": "Track commodity prices, market trends, and finances",
+      "de": "Preise, Märkte und Finanzen",
+      "fr": "Prix, marchés et finances"
+    },
+    "card.marketBadge": {
+      "en": "Market Data",
+      "de": "Marktdaten",
+      "fr": "Marché"
+    },
+    "card.pastures": {
+      "en": "Pastures",
+      "de": "Weiden",
+      "fr": "Pâturages",
+      "es": "Pastos",
+      "it": "Pascoli",
+      "pl": "Pastwiska",
+      "nl": "Weiden",
+      "pt": "Pastagens",
+      "sv": "Betesmarker",
+      "da": "Græsning",
+      "fi": "Laitumet",
+      "cs": "Pastviny",
+      "el": "Βοσκότοποι",
+      "hu": "Legelők",
+      "ro": "Pășuni",
+      "bg": "Пасища",
+      "hr": "Pašnjaci",
+      "sk": "Pastviny",
+      "sl": "Pašniki",
+      "et": "Karjatamisalad",
+      "lv": "Ganības",
+      "lt": "Ganyklos",
+      "ga": "Féaraigh",
+      "mt": "Merħla",
+      "is": "Beit",
+      "nb": "Beite",
+      "uk": "Пасовища"
+    },
+    "card.pasturesDesc": {
+      "en": "Manage pastures, livestock, and grazing conditions",
+      "de": "Weiden, Vieh und Beweidung",
+      "fr": "Pâturages et pâturage"
+    },
+    "card.pasturesWarnings": {
+      "en": "Warnings",
+      "de": "Warnungen",
+      "fr": "Alertes"
+    },
+    "card.productions": {
+      "en": "Productions",
+      "de": "Produktionen",
+      "fr": "Productions",
+      "es": "Producciones",
+      "it": "Produzioni",
+      "pl": "Produkcja",
+      "nl": "Productie",
+      "pt": "Produções",
+      "sv": "Produktion",
+      "da": "Produktion",
+      "fi": "Tuotanto",
+      "cs": "Výroba",
+      "el": "Παραγωγή",
+      "hu": "Termelés",
+      "ro": "Producție",
+      "bg": "Производство",
+      "hr": "Proizvodnja",
+      "sk": "Výroba",
+      "sl": "Proizvodnja",
+      "et": "Tootmine",
+      "lv": "Ražošana",
+      "lt": "Gamyba",
+      "ga": "Táirgeadh",
+      "mt": "Produzzjoni",
+      "is": "Framleiðsla",
+      "nb": "Produksjon",
+      "uk": "Виробництво"
+    },
+    "card.productionsDesc": {
+      "en": "Production chains, storage fill levels, and active slots",
+      "de": "Ketten, Füllstände und aktive Slots",
+      "fr": "Chaînes, stocks et créneaux"
+    },
+    "card.productionsBadge": {
+      "en": "0 Chains",
+      "de": "0 Ketten",
+      "fr": "0 chaînes"
+    },
+    "card.loading": {
+      "en": "Loading...",
+      "de": "Lädt...",
+      "fr": "Chargement..."
+    },
+    "section.back": {
+      "en": "Back to Dashboard",
+      "de": "Zurück zum Dashboard",
+      "fr": "Retour au tableau de bord"
+    },
+    "livestock.heading": {
+      "en": "Livestock Management",
+      "de": "Viehwirtschaft",
+      "fr": "Élevage",
+      "es": "Gestión ganadera",
+      "it": "Gestione bestiame",
+      "pl": "Zwierzęta",
+      "nl": "Veebeheer",
+      "pt": "Gestão do gado"
+    },
+    "livestock.total": {
+      "en": "Total Animals",
+      "de": "Tiere gesamt",
+      "fr": "Total animaux"
+    },
+    "livestock.lactating": {
+      "en": "Lactating",
+      "de": "Laktierend",
+      "fr": "En lactation"
+    },
+    "livestock.pregnant": {
+      "en": "Pregnant",
+      "de": "Trächtig",
+      "fr": "Gestantes"
+    },
+    "livestock.avgHealth": {
+      "en": "Avg Health",
+      "de": "Ø Gesundheit",
+      "fr": "Santé moy."
+    },
+    "livestock.filters": {
+      "en": "Livestock Filters",
+      "de": "Vieh-Filter",
+      "fr": "Filtres"
+    },
+    "livestock.showFilters": {
+      "en": "Show Filters",
+      "de": "Filter anzeigen",
+      "fr": "Afficher filtres"
+    },
+    "livestock.hideFilters": {
+      "en": "Hide Filters",
+      "de": "Filter ausblenden",
+      "fr": "Masquer filtres"
+    },
+    "livestock.reset": {
+      "en": "Reset",
+      "de": "Zurücksetzen",
+      "fr": "Réinitialiser"
+    },
+    "livestock.animalsList": {
+      "en": "Animals List",
+      "de": "Tierliste",
+      "fr": "Liste des animaux"
+    },
+    "livestock.export": {
+      "en": "Export Data",
+      "de": "Daten exportieren",
+      "fr": "Exporter"
+    },
+    "theme.language": {
+      "en": "Language",
+      "de": "Sprache",
+      "fr": "Langue",
+      "es": "Idioma",
+      "it": "Lingua",
+      "pl": "Język",
+      "nl": "Taal",
+      "pt": "Idioma",
+      "sv": "Språk",
+      "da": "Sprog",
+      "fi": "Kieli",
+      "cs": "Jazyk",
+      "el": "Γλώσσα",
+      "hu": "Nyelv",
+      "ro": "Limbă",
+      "bg": "Език",
+      "hr": "Jezik",
+      "sk": "Jazyk",
+      "sl": "Jezik",
+      "et": "Keel",
+      "lv": "Valoda",
+      "lt": "Kalba",
+      "ga": "Teanga",
+      "mt": "Lingwa",
+      "is": "Tungumál",
+      "nb": "Språk",
+      "uk": "Мова"
+    },
+    "theme.modalTitle": {
+      "en": "Theme & Color Settings",
+      "de": "Design & Farben",
+      "fr": "Thème et couleurs",
+      "es": "Tema y colores",
+      "it": "Tema e colori",
+      "pl": "Motyw i kolory",
+      "nl": "Thema en kleuren",
+      "pt": "Tema e cores"
+    },
+    "theme.selectTab": {
+      "en": "Select Tab to Customize:",
+      "de": "Anpassen für Registerkarte:",
+      "fr": "Onglet à personnaliser :"
+    },
+    "theme.tabGlobal": {
+      "en": "Global Default",
+      "de": "Global (Standard)",
+      "fr": "Par défaut"
+    },
+    "theme.tabLivestock": {
+      "en": "Livestock Tab",
+      "de": "Vieh",
+      "fr": "Élevage"
+    },
+    "theme.tabVehicles": {
+      "en": "Vehicles Tab",
+      "de": "Fahrzeuge",
+      "fr": "Véhicules"
+    },
+    "theme.tabFields": {
+      "en": "Fields Tab",
+      "de": "Felder",
+      "fr": "Champs"
+    },
+    "theme.tabEconomy": {
+      "en": "Economy Tab",
+      "de": "Wirtschaft",
+      "fr": "Économie"
+    },
+    "theme.tabPastures": {
+      "en": "Pastures Tab",
+      "de": "Weiden",
+      "fr": "Pâturages"
+    },
+    "theme.bg": {
+      "en": "Background Color",
+      "de": "Hintergrundfarbe",
+      "fr": "Couleur de fond"
+    },
+    "theme.panel": {
+      "en": "Panel / Card Color",
+      "de": "Panel-/Kartenfarbe",
+      "fr": "Couleur des panneaux"
+    },
+    "theme.primary": {
+      "en": "Primary Header Color",
+      "de": "Primäre Kopfzeile",
+      "fr": "En-tête principale"
+    },
+    "theme.accent": {
+      "en": "Accent / Button Color",
+      "de": "Akzent / Schaltflächen",
+      "fr": "Accent / boutons"
+    },
+    "theme.copyAll": {
+      "en": "Copy to All Tabs",
+      "de": "Auf alle Tabs kopieren",
+      "fr": "Copier vers tous les onglets"
+    },
+    "theme.reset": {
+      "en": "Reset Defaults",
+      "de": "Standard wiederherstellen",
+      "fr": "Réinitialiser"
+    },
+    "theme.save": {
+      "en": "Save Theme",
+      "de": "Design speichern",
+      "fr": "Enregistrer"
+    },
+    "theme.close": {
+      "en": "Close",
+      "de": "Schließen",
+      "fr": "Fermer"
+    },
+    "common.close": {
+      "en": "Close",
+      "de": "Schließen",
+      "fr": "Fermer",
+      "es": "Cerrar",
+      "it": "Chiudi",
+      "pl": "Zamknij",
+      "nl": "Sluiten",
+      "pt": "Fechar",
+      "sv": "Stäng",
+      "da": "Luk",
+      "fi": "Sulje",
+      "cs": "Zavřít",
+      "el": "Κλείσιμο",
+      "hu": "Bezárás",
+      "ro": "Închide",
+      "bg": "Затвори",
+      "hr": "Zatvori",
+      "sk": "Zavrieť",
+      "sl": "Zapri",
+      "et": "Sulge",
+      "lv": "Aizvērt",
+      "lt": "Uždaryti",
+      "ga": "Dún",
+      "mt": "Agħlaq",
+      "is": "Loka",
+      "nb": "Lukk",
+      "uk": "Закрити"
+    },
+    "common.cancel": {
+      "en": "Cancel",
+      "de": "Abbrechen",
+      "fr": "Annuler",
+      "es": "Cancelar"
+    },
+    "notif.title": {
+      "en": "Notification History",
+      "de": "Benachrichtigungen",
+      "fr": "Notifications",
+      "es": "Historial de notificaciones",
+      "it": "Notifiche",
+      "pl": "Powiadomienia",
+      "nl": "Meldingen",
+      "pt": "Notificações"
+    },
+    "notif.none": {
+      "en": "No notifications yet",
+      "de": "Noch keine Benachrichtigungen",
+      "fr": "Aucune notification"
+    },
+    "notif.clear": {
+      "en": "Clear All",
+      "de": "Alle löschen",
+      "fr": "Tout effacer"
+    },
+    "export.title": {
+      "en": "Export Livestock Data",
+      "de": "Viehdaten exportieren",
+      "fr": "Exporter données élevage",
+      "es": "Exportar datos ganaderos",
+      "it": "Esporta dati bestiame",
+      "pl": "Eksport danych",
+      "nl": "Gegevens exporteren",
+      "pt": "Exportar dados"
+    },
+    "export.intro": {
+      "en": "Choose your preferred export format for the livestock data:",
+      "de": "Exportformat wählen:",
+      "fr": "Choisissez le format d’export :"
+    },
+    "export.csv": {
+      "en": "CSV (Comma-Separated Values)",
+      "de": "CSV",
+      "fr": "CSV"
+    },
+    "export.csvSub": {
+      "en": "Compatible with Excel, Google Sheets",
+      "de": "Excel, Google Sheets",
+      "fr": "Excel, Google Sheets"
+    },
+    "export.xlsx": {
+      "en": "Excel (.xlsx)",
+      "de": "Excel (.xlsx)",
+      "fr": "Excel (.xlsx)"
+    },
+    "export.xlsxSub": {
+      "en": "Microsoft Excel format with formatting",
+      "de": "Microsoft Excel mit Formatierung",
+      "fr": "Format Excel"
+    },
+    "export.pdf": {
+      "en": "PDF Document",
+      "de": "PDF",
+      "fr": "PDF"
+    },
+    "export.pdfSub": {
+      "en": "Printable report format",
+      "de": "Druckfertiger Bericht",
+      "fr": "Rapport imprimable"
+    },
+    "export.print": {
+      "en": "Print Preview",
+      "de": "Druckvorschau",
+      "fr": "Aperçu avant impression"
+    },
+    "export.printSub": {
+      "en": "Print directly from browser",
+      "de": "Direkt aus dem Browser drucken",
+      "fr": "Imprimer depuis le navigateur"
+    },
+    "farmSelect.title": {
+      "en": "Select Farm",
+      "de": "Farm wählen",
+      "fr": "Choisir la ferme",
+      "es": "Seleccionar granja",
+      "it": "Seleziona azienda",
+      "pl": "Wybierz gospodarstwo",
+      "nl": "Boerderij kiezen",
+      "pt": "Selecionar quinta"
+    },
+    "farmSelect.body": {
+      "en": "Multiple farms found in this save file. Please select which farm's data you want to view:",
+      "de": "Mehrere Farmen in diesem Spielstand. Wählen Sie, welche Daten angezeigt werden sollen:",
+      "fr": "Plusieurs fermes dans cette sauvegarde. Sélectionnez les données à afficher :"
+    },
+    "farmSelect.footer": {
+      "en": "You can change this selection later from the dashboard",
+      "de": "Später im Dashboard änderbar",
+      "fr": "Modifiable plus tard dans le tableau de bord"
+    },
+    "refresh.title": {
+      "en": "Refresh Farm Data",
+      "de": "Farmdaten aktualisieren",
+      "fr": "Actualiser les données",
+      "es": "Actualizar datos",
+      "it": "Aggiorna dati",
+      "pl": "Odśwież dane",
+      "nl": "Gegevens vernieuwen",
+      "pt": "Atualizar dados"
+    },
+    "refresh.lead": {
+      "en": "Get Latest Data from Save Files",
+      "de": "Neueste Daten aus Speicherdateien",
+      "fr": "Dernières données des fichiers"
+    },
+    "refresh.warn": {
+      "en": "Ensure to save in-game before loading data.",
+      "de": "Spiel speichern, bevor Daten geladen werden.",
+      "fr": "Enregistrez en jeu avant de charger."
+    },
+    "refresh.paragraph": {
+      "en": "To refresh with the latest data from your save files, you need to re-select the save folder. This allows the browser to read the updated files from disk.",
+      "de": "Um die neuesten Daten aus Ihren Speicherdateien zu laden, wählen Sie den Speicherordner erneut. So kann der Browser die aktualisierten Dateien lesen.",
+      "fr": "Pour actualiser avec les dernières données, sélectionnez à nouveau le dossier de sauvegarde afin que le navigateur puisse lire les fichiers mis à jour."
+    },
+    "refresh.why": {
+      "en": "Why?",
+      "de": "Warum?",
+      "fr": "Pourquoi ?"
+    },
+    "refresh.whyLine": {
+      "en": "Browsers cannot automatically re-read files from disk for security reasons.",
+      "de": "Aus Sicherheitsgründen kann der Browser Dateien nicht automatisch erneut einlesen.",
+      "fr": "Pour des raisons de sécurité, le navigateur ne peut pas relire automatiquement les fichiers sur le disque."
+    },
+    "refresh.reselect": {
+      "en": "Re-select Folder (Recommended)",
+      "de": "Ordner erneut wählen (empfohlen)",
+      "fr": "Choisir à nouveau le dossier (recommandé)"
+    },
+    "refresh.reselectSub": {
+      "en": "Get fresh data with latest changes",
+      "de": "Aktuelle Änderungen vom Datenträger",
+      "fr": "Données fraîches depuis le disque"
+    },
+    "refresh.display": {
+      "en": "Refresh Display Only",
+      "de": "Nur Anzeige aktualisieren",
+      "fr": "Actualiser l’affichage seulement"
+    },
+    "refresh.displaySub": {
+      "en": "Use cached data (no file changes)",
+      "de": "Zwischengespeicherte Daten (keine Dateiänderung)",
+      "fr": "Données en cache (pas de fichiers)"
+    },
+    "modExport.title": {
+      "en": "Import mod shop images",
+      "de": "Mod-Shop-Bilder importieren",
+      "fr": "Importer images boutique mods"
+    },
+    "modExport.starting": {
+      "en": "Starting…",
+      "de": "Start…",
+      "fr": "Démarrage…"
+    },
+    "modExport.psStarting": {
+      "en": "Starting PowerShell…",
+      "de": "PowerShell wird gestartet…",
+      "fr": "Démarrage de PowerShell…"
+    },
+    "modExport.finishing": {
+      "en": "Finishing…",
+      "de": "Wird abgeschlossen…",
+      "fr": "Finalisation…"
+    },
+    "modExport.log": {
+      "en": "Conversion log",
+      "de": "Konvertierungsprotokoll",
+      "fr": "Journal de conversion"
+    },
+    "weather.title": {
+      "en": "Weather Forecast",
+      "de": "Wettervorhersage",
+      "fr": "Météo",
+      "es": "Pronóstico",
+      "it": "Meteo",
+      "pl": "Pogoda",
+      "nl": "Weer",
+      "pt": "Meteorologia"
+    },
+    "weather.current": {
+      "en": "Current Weather",
+      "de": "Aktuelles Wetter",
+      "fr": "Météo actuelle"
+    },
+    "weather.forecast": {
+      "en": "3-Day Forecast",
+      "de": "3-Tage-Vorschau",
+      "fr": "Prévisions 3 jours"
+    },
+    "vehicle.modalInfo": {
+      "en": "Click image to view full size",
+      "de": "Klick für Vollbild",
+      "fr": "Cliquer pour agrandir"
+    },
+    "placeholder.min": {
+      "en": "Min",
+      "de": "Min",
+      "fr": "Min"
+    },
+    "placeholder.max": {
+      "en": "Max",
+      "de": "Max",
+      "fr": "Max"
+    },
+    "stats.title": {
+      "en": "Farm Statistics",
+      "de": "Farm-Statistik",
+      "fr": "Statistiques"
+    },
+    "genetics.title": {
+      "en": "Genetics Overview",
+      "de": "Genetik",
+      "fr": "Génétique"
+    },
+    "genetics.placeholder": {
+      "en": "Genetic data and breeding recommendations will appear here.",
+      "de": "Genetik und Zuchtempfehlungen erscheinen hier.",
+      "fr": "Données génétiques et conseils de reproduction ici."
+    },
+    "pastureModal.title": {
+      "en": "Pasture Livestock",
+      "de": "Weidevieh",
+      "fr": "Animaux au pâturage"
+    },
+    "changes.title": {
+      "en": "Save Data Changes",
+      "de": "Änderungen am Spielstand",
+      "fr": "Modifications de sauvegarde"
+    },
+    "changes.intro": {
+      "en": "Changes detected since last refresh:",
+      "de": "Änderungen seit letztem Aktualisieren:",
+      "fr": "Changements depuis la dernière actualisation :"
+    },
+    "tab.livestock": {
+      "en": "Livestock",
+      "de": "Vieh",
+      "fr": "Élevage"
+    },
+    "tab.warnings": {
+      "en": "Warnings",
+      "de": "Warnungen",
+      "fr": "Alertes"
+    },
+    "tab.statistics": {
+      "en": "Statistics",
+      "de": "Statistik",
+      "fr": "Statistiques"
+    },
+    "warning.title": {
+      "en": "Warning Details",
+      "de": "Warnungsdetails",
+      "fr": "Détails de l’alerte"
+    },
+    "animal.title": {
+      "en": "Animal Details",
+      "de": "Tierdetails",
+      "fr": "Détails animal"
+    },
+    "setup.pageTitle": {
+      "en": "Server Manager - FS25 Farm Dashboard",
+      "de": "Server-Manager - FS25 Farm Dashboard",
+      "fr": "Gestionnaire de serveur - FS25 Farm Dashboard"
+    },
+    "setup.langHeading": {
+      "en": "Language",
+      "de": "Sprache",
+      "fr": "Langue"
+    },
+    "setup.langHint": {
+      "en": "Choose your language first. This matches the Windows installer step and the in-dashboard setting.",
+      "de": "Zuerst die Sprache wählen. Entspricht dem Windows-Installer und dem Dashboard.",
+      "fr": "Choisissez d’abord la langue (installateur Windows et tableau de bord)."
+    },
+    "setup.serverManager": {
+      "en": "Server Manager",
+      "de": "Server-Manager",
+      "fr": "Gestionnaire de serveur"
+    },
+    "setup.emptyServers": {
+      "en": "No servers added yet.\n\nUse Auto-Detect or add one manually →",
+      "de": "Noch keine Server.\n\nAuto-Erkennung nutzen oder manuell hinzufügen →",
+      "fr": "Aucun serveur.\n\nDétection auto ou ajout manuel →"
+    },
+    "setup.ftpHeading": {
+      "en": "FTP polling",
+      "de": "FTP-Abfrage",
+      "fr": "Interrogation FTP"
+    },
+    "setup.ftpPollHint": {
+      "en": "Applies to dedicated (FTP) servers. Local saves use file watching, not this schedule.",
+      "de": "Gilt für dedizierte (FTP-)Server. Lokale Speicherstände nutzen Dateiüberwachung.",
+      "fr": "Serveurs dédiés (FTP). Les sauvegardes locales utilisent la surveillance de fichiers."
+    },
+    "setup.delayLabel": {
+      "en": "Delay before first poll (seconds)",
+      "de": "Verzögerung vor erster Abfrage (Sekunden)",
+      "fr": "Délai avant 1re interrogation (s)"
+    },
+    "setup.pollLabel": {
+      "en": "Poll every (minutes)",
+      "de": "Abfrage alle (Minuten)",
+      "fr": "Interrogation toutes les (minutes)"
+    },
+    "setup.pollCycleHint": {
+      "en": "Full cycle length: 1–25 min.",
+      "de": "Zykluslänge: 1–25 Min.",
+      "fr": "Durée de cycle : 1–25 min."
+    },
+    "setup.scheduleSync": {
+      "en": "Each cycle: poll all FTP servers at once",
+      "de": "Pro Zyklus: alle FTP-Server gleichzeitig",
+      "fr": "Chaque cycle : tous les FTP en même temps"
+    },
+    "setup.scheduleStaggered": {
+      "en": "Staggered: one FTP server per equal slice across the interval",
+      "de": "Gestaffelt: ein FTP-Server pro Zeitscheibe",
+      "fr": "Échelonné : un FTP par créneau"
+    },
+    "setup.launch": {
+      "en": "Launch Dashboard",
+      "de": "Dashboard starten",
+      "fr": "Lancer le tableau de bord"
+    },
+    "setup.autoDetect": {
+      "en": "Auto-Detect Local Saves",
+      "de": "Lokale Speicherstände erkennen",
+      "fr": "Détecter les sauvegardes locales"
+    },
+    "setup.modImages": {
+      "en": "Scan FS25 mods for dashboard images",
+      "de": "FS25-Mods für Dashboard-Bilder scannen",
+      "fr": "Scanner les mods FS25 (images)"
+    },
+    "setup.modImagesHint": {
+      "en": "Copies shop-style PNGs and converts icon_*.dds from your FS25 mods folder into the dashboard (items_mod_extract). DDS conversion uses ImageMagick if installed, or texconv.exe placed in the app resources/texconv folder.",
+      "de": "Kopiert Shop-PNGs und wandelt icon_*.dds aus dem Mod-Ordner (items_mod_extract). DDS: ImageMagick oder texconv in resources/texconv.",
+      "fr": "Copie les PNG boutique et convertit icon_*.dds (items_mod_extract). DDS : ImageMagick ou texconv dans resources/texconv."
+    },
+    "setup.addManual": {
+      "en": "Add Server Manually",
+      "de": "Server manuell hinzufügen",
+      "fr": "Ajouter un serveur"
+    },
+    "setup.displayName": {
+      "en": "Display Name",
+      "de": "Anzeigename",
+      "fr": "Nom affiché"
+    },
+    "setup.modeLocal": {
+      "en": "Local PC",
+      "de": "Lokaler PC",
+      "fr": "PC local"
+    },
+    "setup.modeFtp": {
+      "en": "Dedicated Server (FTP)",
+      "de": "Dedizierter Server (FTP)",
+      "fr": "Serveur dédié (FTP)"
+    },
+    "setup.localPath": {
+      "en": "modSettings Base Path",
+      "de": "modSettings-Basisordner",
+      "fr": "Chemin de base modSettings"
+    },
+    "setup.localHint": {
+      "en": "Leave blank to use the default Documents path.",
+      "de": "Leer = Standard-Dokumentenpfad.",
+      "fr": "Vide = dossier Documents par défaut."
+    },
+    "setup.saveFolder": {
+      "en": "Savegame Folder",
+      "de": "Savegame-Ordner",
+      "fr": "Dossier de sauvegarde"
+    },
+    "setup.saveHint": {
+      "en": "Leave blank to use the Display Name as the folder name.",
+      "de": "Leer = Anzeigename als Ordnername.",
+      "fr": "Vide = nom affiché comme dossier."
+    },
+    "setup.ftpHost": {
+      "en": "FTP Host / IP",
+      "de": "FTP-Host / IP",
+      "fr": "Hôte FTP / IP"
+    },
+    "setup.ftpPort": {
+      "en": "Port",
+      "de": "Port",
+      "fr": "Port"
+    },
+    "setup.ftpUser": {
+      "en": "Username",
+      "de": "Benutzername",
+      "fr": "Utilisateur"
+    },
+    "setup.ftpPass": {
+      "en": "Password",
+      "de": "Passwort",
+      "fr": "Mot de passe"
+    },
+    "setup.basePath": {
+      "en": "Base Profile Path",
+      "de": "Profil-Basisordner",
+      "fr": "Chemin de profil de base"
+    },
+    "setup.slotFolder": {
+      "en": "Savegame Slot Folder",
+      "de": "Savegame-Slot-Ordner",
+      "fr": "Dossier du slot"
+    },
+    "setup.slotHint": {
+      "en": "Which slot the mod writes data.json into.",
+      "de": "Slot, in den die Mod data.json schreibt.",
+      "fr": "Slot où la mod écrit data.json."
+    },
+    "setup.httpHeading": {
+      "en": "HTTP Feed",
+      "de": "HTTP-Feed",
+      "fr": "Flux HTTP"
+    },
+    "setup.httpHint": {
+      "en": "If your dedicated server exposes the Giants HTTP feed, enter the details below. Provides vehicle age, prices and crop price history. Leave blank to use Lua-only mode.",
+      "de": "Giants-HTTP-Feed des Servers (optional). Fahrzeugalter, Preise, Verlauf. Leer = nur Lua.",
+      "fr": "Flux HTTP Giants (optionnel). Âge des véhicules, prix. Vide = Lua seul."
+    },
+    "setup.httpHost": {
+      "en": "Server IP / Host",
+      "de": "Server-IP / Host",
+      "fr": "IP / hôte"
+    },
+    "setup.httpPort": {
+      "en": "HTTP Port",
+      "de": "HTTP-Port",
+      "fr": "Port HTTP"
+    },
+    "setup.feedCode": {
+      "en": "Feed Access Code",
+      "de": "Feed-Zugangscode",
+      "fr": "Code d’accès"
+    },
+    "setup.addServer": {
+      "en": "Add Server",
+      "de": "Server hinzufügen",
+      "fr": "Ajouter"
+    },
+    "setup.remove": {
+      "en": "Remove",
+      "de": "Entfernen",
+      "fr": "Supprimer"
+    },
+    "setup.modexpTitle": {
+      "en": "Import mod shop images",
+      "de": "Mod-Shop-Bilder importieren",
+      "fr": "Importer images boutique mods"
+    },
+    "setup.modexpLog": {
+      "en": "Conversion log",
+      "de": "Konvertierungsprotokoll",
+      "fr": "Journal de conversion"
+    }
+  }
+}

@@ -13,6 +13,7 @@ import * as fields        from './modules/fields.js';
 import * as environment   from './modules/environment.js';
 import * as theming       from './modules/theming.js';
 import * as productions   from './modules/productions.js';
+import { initI18n, t }    from './i18n/i18n.js';
 
 class LivestockDashboard {
   constructor() {
@@ -57,6 +58,12 @@ Object.assign(
 
 let dashboard;
 document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    await initI18n();
+    window.t = t;
+  } catch (e) {
+    console.warn('[i18n]', e);
+  }
   try {
     const r = await fetch('/api/item-image-filenames');
     const data = await r.json();

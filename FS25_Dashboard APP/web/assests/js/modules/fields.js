@@ -1,4 +1,4 @@
-// FS25 FarmDashboard | fields.js | v1.1.5
+// FS25 FarmDashboard | fields.js | v2.0.0
 
 /**
  * fields.js  —  FarmDashboard FS25
@@ -132,7 +132,7 @@ async function loadFieldsData() {
 // ── Stats bar ─────────────────────────────────────────────────────────────────
 export function updateFieldStats() {
     const totalArea     = currentFields.reduce((s, f) => s + (f.hectares || 0), 0);
-    const needsWork     = currentFields.filter(f => f.needsWork || fieldShowsWithered(f)).length;
+    const needsWork     = currentFields.filter(f => f.needsWork || f.needsRolling || fieldShowsWithered(f)).length;
     const harvestReady  = currentFields.filter(f => effectiveHarvestReady(f)).length;
 
     setText("total-fields-count", currentFields.length);
@@ -200,7 +200,7 @@ function getFieldStatus(f) {
     // Mulched fallow (no crop): same filter bucket as empty — cards still show mulched styling
     if (isMulchedEmptyField(f)) return "empty";
     if (effectiveHarvestReady(f)) return "harvest";
-    if (f.needsWork)     return "needswork";
+    if (f.needsWork || f.needsRolling) return "needswork";
     if (f.growthState > 0) return "growing";
     return "empty";
 }
@@ -320,7 +320,7 @@ function buildStatusBadge(field) {
         return `<span class="badge" style="background:${MULCH_PURPLE};color:${MULCH_PURPLE_FG}">Mulched</span>`;
     }
     if (effectiveHarvestReady(field)) return `<span class="badge" style="background:#ff9800;color:#000">Ready</span>`;
-    if (field.needsWork)    return `<span class="badge bg-warning text-dark">Needs Work</span>`;
+    if (field.needsWork || field.needsRolling) return `<span class="badge bg-warning text-dark">Needs Work</span>`;
     if ((field.growthState || 0) > 0) return `<span class="badge bg-info text-dark">Growing</span>`;
     return `<span class="badge bg-dark border border-secondary">Empty</span>`;
 }
@@ -474,9 +474,7 @@ function buildConditions(field) {
     }
 
     // ── pH / Lime ─────────────────────────────────────────────────────────────
-    // PF bar: 5.5 pH = empty → 6.5 pH = full (reads “low” when lime is typically needed)
-    const PH_LIME_BAR_MIN = 5.5;
-    const PH_LIME_BAR_GOOD = 6.5;
+    // PF: bar range from Lua (soil-type-aware): phLimeBarMin → targetPh (game optimal per soil samples).
     let phProgress = 0;
     let phColour   = "#6c757d";
     let phLabel    = field.limeText || (field.needsLime ? "Needed" : "Done");
@@ -489,14 +487,25 @@ function buildConditions(field) {
         } else {
             const pv = Number(field.phValue);
             const pvOk = Number.isFinite(pv) ? pv : 0;
-            phProgress = Math.max(0, Math.min(100,
-                ((pvOk - PH_LIME_BAR_MIN) / (PH_LIME_BAR_GOOD - PH_LIME_BAR_MIN)) * 100));
+            const tgt = Number(field.targetPh);
+            const barMax = Number.isFinite(tgt) && tgt > 0 ? tgt
+                : (Number(field.phLimeBarMax) > 0 ? Number(field.phLimeBarMax) : 6.5);
+            const rawMin = Number(field.phLimeBarMin);
+            let barMin = Number.isFinite(rawMin) && rawMin > 0 && rawMin < barMax
+                ? rawMin
+                : Math.max(4.3, barMax - 1.2);
+            if (barMin >= barMax) barMin = Math.max(4.3, barMax - 1.2);
+            const span = barMax - barMin;
+            phProgress = span > 0
+                ? Math.max(0, Math.min(100, ((pvOk - barMin) / span) * 100))
+                : (field.needsLime ? 0 : 100);
             let ratio;
             if (field.targetPh > 0) {
                 ratio = pvOk / field.targetPh;
             } else {
-                ratio = Math.max(0, Math.min(1,
-                    (pvOk - PH_LIME_BAR_MIN) / (PH_LIME_BAR_GOOD - PH_LIME_BAR_MIN)));
+                ratio = span > 0
+                    ? Math.max(0, Math.min(1, (pvOk - barMin) / span))
+                    : 0;
             }
             if      (ratio < 0.80) phColour = "#dc3545";
             else if (ratio < 0.90) phColour = "#fd7e14";
@@ -537,7 +546,15 @@ function shouldSuppressHarvestSuggestions(field) {
     return false;
 }
 
-// ── Suggestion box ────────────────────────────────────────────────────────────
+function escapeFieldHtml(s) {
+    return String(s ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+}
+
+// ── Suggested Next Step: single action (lowest priority number = best action from here) ──
 function buildSuggestion(field) {
     if (!field.suggestions || field.suggestions.length === 0) return "";
     let sorted = [...field.suggestions].sort((a, b) => (a.priority || 9) - (b.priority || 9));
@@ -550,17 +567,17 @@ function buildSuggestion(field) {
             return true;
         });
     }
-    const top = sorted[0];
-    if (!top?.action) return "";
+    const top = sorted.find(s => s && s.action);
+    if (!top) return "";
 
     return `
         <div class="mt-3 p-2 bg-dark rounded border-start border-warning border-3">
-            <small class="text-muted d-block">Recommended</small>
+            <small class="text-muted d-block">Suggested Next Step</small>
             <span class="text-warning fw-bold" style="font-size:0.85rem;">
-                <i class="bi bi-tools me-1"></i>${top.action}
+                <i class="bi bi-tools me-1"></i>${escapeFieldHtml(top.action)}
             </span>
             ${top.reason ? `<span class="d-block text-light small mt-1 opacity-75">
-                <i class="bi bi-info-circle me-1"></i>${top.reason}
+                <i class="bi bi-info-circle me-1"></i>${escapeFieldHtml(top.reason)}
             </span>` : ""}
         </div>`;
 }

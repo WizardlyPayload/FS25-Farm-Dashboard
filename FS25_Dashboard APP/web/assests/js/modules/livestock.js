@@ -1,4 +1,4 @@
-// FS25 FarmDashboard | livestock.js | v1.0.0
+// FS25 FarmDashboard | livestock.js | v2.0.0
 
 export function refreshAnimalData() {
   if (!this.savedFolderData || !this.savedFolderData.xmlData) {
@@ -332,7 +332,7 @@ export function showAnimalDetails(animalId) {
                       </div>
                       <div class="card-body text-center">
                           <div class="livestock-tag">
-                              <img src="assests/img/tag.png" alt="Livestock Tag" />
+                              <img src="/assests/img/tag.svg" alt="" width="120" height="160" />
                               <div class="tag-id">${animal.id}</div>
                           </div>
                           <div class="mt-3">

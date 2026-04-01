@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<!-- FS25 FarmDashboard | index.html | v1.0.0 -->
+<!-- FS25 FarmDashboard | index.html | v2.0.0 -->
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="author" content="JoshWalki, WizardlyPayload" />
     <title>Farming Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css"/>
@@ -113,6 +114,11 @@
               <h2 class="text-farm-accent mb-3"><i class="bi bi-speedometer2 me-2"></i>Farm Management Dashboard</h2>
               <p class="lead text-muted">Select a section below to manage your farm data</p>
               <div class="badge bg-farm-primary fs-6 mt-2" id="game-time-display"><i class="bi bi-clock me-1"></i>Loading game time...</div>
+              <div class="mt-3">
+                <button type="button" class="btn btn-sm btn-outline-farm-accent" id="landing-import-mod-images" title="Scan local FS25 mods folder">
+                  <i class="bi bi-images me-1"></i>Import mod shop images
+                </button>
+              </div>
             </div>
           </div>
 
@@ -623,6 +629,7 @@
       </script>
 
       <script src="assests/js/realtime-connector.js"></script>
+      <script src="assests/js/modExportProgress.js"></script>
       <script type="module" src="assests/js/app.js"></script>
       
       <script>
@@ -679,6 +686,24 @@
             <div class="row" id="forecast-days"></div>
           </div>
           <div class="modal-footer border-farm-accent"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modExportProgressModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-dark text-light border border-secondary">
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title"><i class="bi bi-folder2-open me-2 text-farm-accent"></i>Import mod shop images</h5>
+          </div>
+          <div class="modal-body">
+            <p id="modExportProgressLabel" class="text-muted small mb-2">Starting…</p>
+            <div class="progress mb-3" style="height: 26px">
+              <div id="modExportProgressBar" class="progress-bar bg-farm-accent" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <div class="small text-muted mb-1">Conversion log</div>
+            <pre id="modExportLog" class="bg-black border border-secondary rounded p-2 mb-0 text-secondary" style="max-height: 260px; overflow: auto; font-size: 11px; white-space: pre-wrap;"></pre>
+          </div>
         </div>
       </div>
     </div>

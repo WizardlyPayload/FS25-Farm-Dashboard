@@ -1,4 +1,4 @@
--- FS25 FarmDashboard | FinanceDataCollector.lua | v1.0.0
+-- FS25 FarmDashboard | FinanceDataCollector.lua | v2.0.0
 
 FinanceDataCollector = {}
 

@@ -1,4 +1,4 @@
-// FS25 FarmDashboard | economy.js | v1.0.0
+// FS25 FarmDashboard | economy.js | v2.0.0
 
 export function showEconomySection() {
   const economyHTML = `

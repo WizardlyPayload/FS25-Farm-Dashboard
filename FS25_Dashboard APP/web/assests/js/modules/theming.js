@@ -1,4 +1,4 @@
-// FS25 FarmDashboard | theming.js | v1.0.0
+// FS25 FarmDashboard | theming.js | v2.0.0
 
 export function initTheming() {
     // Original defaults based exactly on your CSS

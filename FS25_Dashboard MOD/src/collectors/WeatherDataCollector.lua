@@ -1,4 +1,4 @@
--- FS25 FarmDashboard | WeatherDataCollector.lua | v1.0.0
+-- FS25 FarmDashboard | WeatherDataCollector.lua | v2.0.0
 
 WeatherDataCollector = {}
 

@@ -11,6 +11,13 @@
   --farm-light: #f5f5dc; /* Beige for text */
   --farm-muted: #a0a0a0; /* Muted gray */
   --farm-accent: #daa520; /* Golden rod accent */
+  /* Thumbnail + modal backdrop: dark charcoal + subtle grid (FS25 shop style). PNG override: assests/img/textures/shop-icon-backdrop.png */
+  --vehicle-shop-thumb-overlay: linear-gradient(
+    165deg,
+    rgba(58, 77, 56, 0.28) 0%,
+    rgba(18, 24, 20, 0.88) 100%
+  );
+  --vehicle-shop-thumb-fallback-bg: #121814;
 }
 
 /* --- DYNAMIC THEMING OVERRIDES --- */
@@ -919,8 +926,12 @@ th {
 
 /* Vehicle Image Modal Styling */
 #vehicleImageModal .modal-body {
-  background: #fff;
-  padding: 0;
+  background-color: var(--vehicle-shop-thumb-fallback-bg);
+  background-image: var(--vehicle-shop-thumb-overlay),
+    url("../img/textures/shop-icon-backdrop.svg");
+  background-size: cover, cover;
+  background-position: center, center;
+  padding: 12px !important; /* override Bootstrap p-0 on markup */
   overflow: hidden;
 }
 
@@ -937,6 +948,69 @@ th {
 .vehicle-display-container {
   transition: all 0.3s ease !important;
   position: relative;
+}
+
+/* Shop-style thumbnail (local + mod extract PNGs): charcoal + fine grid texture */
+.vehicle-display-container.vehicle-shop-thumb {
+  width: 80px;
+  height: 60px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 2px 8px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  background-color: var(--vehicle-shop-thumb-fallback-bg);
+  background-image: var(--vehicle-shop-thumb-overlay),
+    url("../img/textures/shop-icon-backdrop.svg");
+  background-size: cover, cover;
+  background-position: center, center;
+}
+
+.vehicle-shop-thumb-img {
+  max-width: 76px;
+  max-height: 56px;
+  object-fit: contain;
+  border-radius: 4px;
+  transition: transform 0.2s ease;
+}
+
+.vehicle-shop-thumb-fallback {
+  display: none;
+  color: rgba(245, 245, 220, 0.92);
+  font-size: 10px;
+  font-weight: bold;
+  text-align: center;
+  padding: 4px;
+  line-height: 1.1;
+  word-wrap: break-word;
+  max-width: 76px;
+  background: rgba(0, 0, 0, 0.25);
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+}
+
+.vehicle-shop-thumb-zoom {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  opacity: 0.75;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.vehicle-shop-thumb-zoom .bi-zoom-in {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 .vehicle-display-container:hover {

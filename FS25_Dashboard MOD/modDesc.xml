@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- FS25 FarmDashboard | modDesc.xml | v1.0.0 -->
+<!-- FS25 FarmDashboard | modDesc.xml | v2.0.0 -->
 <modDesc descVersion="99">
-    <author>JoshWalki / Wizardlypayload</author>
-    <version>1.0.0.0</version>
+    <author>JoshWalki / Wizardlypayload; WizardlyPayload</author>
+    <version>2.0.0.0</version>
     
     <title>
         <en>Farm Dashboard</en>

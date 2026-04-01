@@ -1,4 +1,4 @@
-// FS25 FarmDashboard | app.js | v1.0.0
+// FS25 FarmDashboard | app.js | v2.0.0
 
 import * as apiStorage    from './modules/apiStorage.js';
 import * as parsers       from './modules/parsers.js';
@@ -56,7 +56,14 @@ Object.assign(
 );
 
 let dashboard;
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const r = await fetch('/api/item-image-filenames');
+    const data = await r.json();
+    vehicles.primeModExtractImageFilenames(data.modExtract || []);
+  } catch (e) {
+    console.warn('[item-image-filenames]', e);
+  }
   dashboard = new LivestockDashboard();
   window.dashboard = dashboard;
 });

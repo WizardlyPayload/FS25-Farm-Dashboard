@@ -1,4 +1,4 @@
-// FS25 FarmDashboard | preload.js | v1.0.1
+// FS25 FarmDashboard | preload.js | v2.0.0
 // Not referenced by main.js BrowserWindow (setup uses nodeIntegration). Kept for optional future isolation.
 
 /**

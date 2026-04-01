@@ -1,4 +1,4 @@
-// FS25 FarmDashboard | apiStorage.js | v1.0.1
+// FS25 FarmDashboard | apiStorage.js | v2.0.0
 
 /**
  * API & Storage Module
@@ -43,10 +43,13 @@ export function getAPIBaseURL() {
   return "http://127.0.0.1:8766";
 }
 
-/** Dedicated server (FTP) — multiple farms; local PC saves hide farm switcher. */
+/** Farm switcher: FTP (always) or local when the save has more than one player farm. */
 export function isFarmDropdownEnabled() {
     const srv = (this.availableServers || []).find(s => s.id === this.activeServerId);
-    return !!(srv && srv.mode === 'ftp');
+    if (!srv) return false;
+    if (srv.mode === 'ftp') return true;
+    const farms = this.playerFarms || [];
+    return farms.length > 1;
 }
 
 export async function loadServersAndTabs() {

@@ -1,4 +1,221 @@
-// FS25 FarmDashboard | vehicles.js | v1.0.1
+// FS25 FarmDashboard | vehicles.js | v2.0.0
+
+/** Filenames in assests/img/items_mod_extract/ from GET /api/item-image-filenames (primed in app.js before dashboard init). */
+let modExtractImageFilenames = [];
+
+export function primeModExtractImageFilenames(list) {
+  modExtractImageFilenames = Array.isArray(list) ? list : [];
+}
+
+export function setModExtractImageFilenames(list) {
+  primeModExtractImageFilenames(list);
+  this.vehicleImageCacheMod = null;
+  this.vehicleImageCacheModBuilt = false;
+}
+
+/** Lowercase letters+digits only — same logical string for "Axial-Flow 9250" and "AxialFlow9250". */
+function normalizeCompact(s) {
+  if (!s) return "";
+  return String(s).toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+/**
+ * Prefer PNGs whose filename contains the vehicle (or brand+vehicle) compact string.
+ * When this fails (common for mod hub names vs file tokens), findVehicleImageDynamic falls back to fuzzy-only scoring.
+ */
+function filenameMatchesVehicleStrict(filename, vehicleName, brandName) {
+  let base = String(filename).replace(/^.*[/\\]/, "").replace(/\.png$/i, "");
+  try {
+    base = decodeURIComponent(base);
+  } catch (e) {
+    /* ignore */
+  }
+  const file = normalizeCompact(base);
+  if (!file || !vehicleName) return false;
+
+  const vn = normalizeCompact(vehicleName);
+  if (vn.length >= 4 && file.includes(vn)) return true;
+
+  if (brandName && vehicleName) {
+    const withSpace = normalizeCompact(`${brandName} ${vehicleName}`);
+    if (withSpace.length >= 4 && file.includes(withSpace)) return true;
+    const nospace = normalizeCompact(`${brandName}${vehicleName}`);
+    if (nospace.length >= 4 && file.includes(nospace)) return true;
+  }
+
+  if (vn.length > 0 && vn.length < 4 && brandName) {
+    const combined = normalizeCompact(`${brandName}${vehicleName}`);
+    if (combined.length >= 4 && file.includes(combined)) return true;
+  }
+
+  return false;
+}
+
+/**
+ * Fuzzy score vehicle text against one image cache. Curated items/ is scored first in findVehicleImageDynamic; mod extract is fallback.
+ */
+function scoreVehicleImageCache(
+  cache,
+  vehicleNameNorm,
+  brandNameNorm,
+  typeNameNorm,
+  vehicleName
+) {
+  let bestMatch = null;
+  let bestScore = 0;
+
+  cache.forEach((img) => {
+    let score = 0;
+
+    let brandBonus = 0;
+    if (brandNameNorm && img.brandNorm) {
+      if (img.brandNorm === brandNameNorm) {
+        brandBonus = 10;
+      } else if (
+        brandNameNorm.length >= 3 &&
+        img.brandNorm.includes(brandNameNorm.substring(0, 3))
+      ) {
+        brandBonus = 6;
+      } else if (
+        (brandNameNorm === "john" && img.brandNorm.includes("johndeere")) ||
+        (brandNameNorm === "mf" && img.brandNorm.includes("massey")) ||
+        (brandNameNorm === "jd" && img.brandNorm.includes("johndeere")) ||
+        (brandNameNorm === "massey" && img.brandNorm.includes("massey"))
+      ) {
+        brandBonus = 8;
+      } else if (
+        img.brandNorm.length >= 3 &&
+        brandNameNorm.includes(img.brandNorm.substring(0, 3))
+      ) {
+        brandBonus = 4;
+      }
+    }
+
+    if (vehicleNameNorm && img.modelNorm) {
+      if (img.modelNorm === vehicleNameNorm) {
+        score += 25;
+      } else if (
+        vehicleNameNorm.length >= 3 &&
+        img.modelNorm.includes(vehicleNameNorm)
+      ) {
+        score += 15;
+      } else if (
+        img.modelNorm.length >= 3 &&
+        vehicleNameNorm.includes(img.modelNorm)
+      ) {
+        score += 12;
+      }
+
+      const vehicleNumbers = vehicleNameNorm.match(/(\d+)/g) || [];
+      const imageNumbers = img.modelNorm.match(/(\d+)/g) || [];
+
+      if (vehicleNumbers.length > 0 && imageNumbers.length > 0) {
+        let hasExactNumberMatch = false;
+        vehicleNumbers.forEach((vNum) => {
+          imageNumbers.forEach((iNum) => {
+            if (vNum === iNum) {
+              hasExactNumberMatch = true;
+              if (vNum.length >= 4) {
+                score += 12;
+              } else if (vNum.length >= 3) {
+                score += 8;
+              } else {
+                score += 4;
+              }
+            } else if (vNum.length >= 3 && iNum.length >= 3) {
+              const vNumInt = parseInt(vNum, 10);
+              const iNumInt = parseInt(iNum, 10);
+              const diff = Math.abs(vNumInt - iNumInt);
+
+              if (diff > 1000) {
+                score -= 8;
+              } else if (diff > 500) {
+                score -= 4;
+              } else if (diff > 100) {
+                score -= 2;
+              }
+            }
+          });
+        });
+
+        if (
+          !hasExactNumberMatch &&
+          vehicleNumbers.length > 0 &&
+          vehicleNumbers[0].length >= 3
+        ) {
+          score -= 3;
+        }
+      }
+
+      const vehicleAlphaNum =
+        vehicleNameNorm.match(/(\d+[a-z]+|[a-z]+\d+)/g) || [];
+      vehicleAlphaNum.forEach((pattern) => {
+        if (img.modelNorm.includes(pattern)) {
+          score += 8;
+        }
+      });
+
+      const vehicleWords = vehicleNameNorm
+        .split(/\s+/)
+        .filter((w) => w.length >= 3);
+      const modelWords = img.modelNorm
+        .split(/\s+/)
+        .filter((w) => w.length >= 3);
+
+      let wordMatches = 0;
+      vehicleWords.forEach((vWord) => {
+        modelWords.forEach((mWord) => {
+          if (
+            vWord === mWord ||
+            vWord.includes(mWord) ||
+            mWord.includes(vWord)
+          ) {
+            wordMatches++;
+          }
+        });
+      });
+
+      if (wordMatches > 0) {
+        score += wordMatches * 3;
+      }
+    }
+
+    if (typeNameNorm) {
+      if (
+        typeNameNorm.includes("trailer") &&
+        img.modelNorm.includes("trailer")
+      ) {
+        score += 15;
+      } else if (
+        typeNameNorm.includes("header") &&
+        img.modelNorm.includes("header")
+      ) {
+        score += 15;
+      } else if (
+        typeNameNorm.includes("header") &&
+        !img.modelNorm.includes("header") &&
+        !img.modelNorm.includes("trailer")
+      ) {
+        score -= 5;
+      } else if (
+        typeNameNorm.includes("trailer") &&
+        !img.modelNorm.includes("trailer") &&
+        !img.modelNorm.includes("header")
+      ) {
+        score -= 5;
+      }
+    }
+
+    score += brandBonus;
+
+    if (score > bestScore && score >= 3) {
+      bestScore = score;
+      bestMatch = img;
+    }
+  });
+
+  return { bestMatch, bestScore };
+}
 
 export function showVehiclesSection() {
   const vehiclesHTML = `
@@ -358,12 +575,12 @@ export function getLocalVehicleImage(vehicleName, brandName, typeName) {
     tenwinkel: "_557_FS25_Tenwinkel_FGB_600.png",
   };
 
-  // Try exact matches first
+  // Try exact matches first (manual map — do not require strict filename vs display name)
   for (const term of searchTerms) {
     const termLower = term.toLowerCase().trim();
     if (vehicleModelMap[termLower]) {
-      const imagePath = `/assests/img/items/${vehicleModelMap[termLower]}`;
-      return imagePath;
+      const filename = vehicleModelMap[termLower];
+      return `/assests/img/items/${filename}`;
     }
   }
 
@@ -423,9 +640,9 @@ export function findVehicleImageDynamic(vehicleName, brandName, typeName) {
     );
   }
 
-  // Cache for image files (populate once)
-  if (!this.vehicleImageCache) {
-    this.vehicleImageCache = [];
+  // Cache for image files (populate once): curated items/ first; items_mod_extract/ filled from API list
+  if (!this.vehicleImageCacheCurated) {
+    this.vehicleImageCacheCurated = [];
     
     // User-provided extensive image files list
     const imageFiles = [
@@ -1063,7 +1280,7 @@ export function findVehicleImageDynamic(vehicleName, brandName, typeName) {
         originalModel: modelPart,
       };
 
-      this.vehicleImageCache.push(cacheEntry);
+      this.vehicleImageCacheCurated.push(cacheEntry);
 
       // Debug log cache entries for specific images
       if (filename.includes("8570")) {
@@ -1074,197 +1291,100 @@ export function findVehicleImageDynamic(vehicleName, brandName, typeName) {
     });
   }
 
-  // Score-based matching
-  let bestMatch = null;
-  let bestScore = 0;
+  if (this.vehicleImageCacheModBuilt !== true) {
+    this.vehicleImageCacheMod = [];
+    modExtractImageFilenames.forEach((filename) => {
+      if (!filename || !/\.png$/i.test(filename)) return;
+      const base = filename.replace(/\.png$/i, "");
+      const sep = base.indexOf("__");
+      const afterSep = sep >= 0 ? base.slice(sep + 2) : base;
+      const parts = afterSep.split("_");
+      const brandPart = parts[0] || "";
+      const modelPart = parts
+        .slice(1)
+        .join(" ")
+        .replace(/%2B/g, "+")
+        .replace(/%25/g, "%");
 
-  this.vehicleImageCache.forEach((img) => {
-    let score = 0;
+      const cacheEntry = {
+        filename: filename,
+        path: `/assests/img/items_mod_extract/${filename}`,
+        brandNorm: normalizeText(brandPart),
+        modelNorm: normalizeText(modelPart),
+        fullNorm: normalizeText(afterSep),
+        originalBrand: brandPart,
+        originalModel: modelPart,
+      };
 
-    // Simplified brand matching - much more permissive
-    let brandBonus = 0;
-    if (brandNameNorm && img.brandNorm) {
-      // Exact brand match
-      if (img.brandNorm === brandNameNorm) {
-        brandBonus = 10;
-      }
-      // Partial brand match
-      else if (
-        brandNameNorm.length >= 3 &&
-        img.brandNorm.includes(brandNameNorm.substring(0, 3))
-      ) {
-        brandBonus = 6;
-      }
-      // Brand abbreviations
-      else if (
-        (brandNameNorm === "john" && img.brandNorm.includes("johndeere")) ||
-        (brandNameNorm === "mf" && img.brandNorm.includes("massey")) ||
-        (brandNameNorm === "jd" && img.brandNorm.includes("johndeere")) ||
-        (brandNameNorm === "massey" && img.brandNorm.includes("massey"))
-      ) {
-        brandBonus = 8;
-      }
-      // Reverse check - image brand contained in search brand
-      else if (
-        img.brandNorm.length >= 3 &&
-        brandNameNorm.includes(img.brandNorm.substring(0, 3))
-      ) {
-        brandBonus = 4;
-      }
-    }
+      this.vehicleImageCacheMod.push(cacheEntry);
+    });
+    this.vehicleImageCacheModBuilt = true;
+  }
 
-    // Model name matching - more flexible
-    if (vehicleNameNorm && img.modelNorm) {
-      // Exact model name match
-      if (img.modelNorm === vehicleNameNorm) {
-        score += 25;
-      }
-      // Vehicle name contained in model
-      else if (
-        vehicleNameNorm.length >= 3 &&
-        img.modelNorm.includes(vehicleNameNorm)
-      ) {
-        score += 15;
-      }
-      // Model contained in vehicle name
-      else if (
-        img.modelNorm.length >= 3 &&
-        vehicleNameNorm.includes(img.modelNorm)
-      ) {
-        score += 12;
-      }
+  const curatedAll = this.vehicleImageCacheCurated || [];
+  const modAll = this.vehicleImageCacheMod || [];
 
-      // Number matching - more precise
-      const vehicleNumbers = vehicleNameNorm.match(/(\d+)/g) || [];
-      const imageNumbers = img.modelNorm.match(/(\d+)/g) || [];
-
-      if (vehicleNumbers.length > 0 && imageNumbers.length > 0) {
-        let hasExactNumberMatch = false;
-        vehicleNumbers.forEach((vNum) => {
-          imageNumbers.forEach((iNum) => {
-            if (vNum === iNum) {
-              hasExactNumberMatch = true;
-              // Give good scores for exact number match
-              if (vNum.length >= 4) {
-                score += 12;
-              } else if (vNum.length >= 3) {
-                score += 8;
-              } else {
-                score += 4;
-              }
-            }
-            // Penalty for significant number mismatches (different lengths or very different numbers)
-            else if (vNum.length >= 3 && iNum.length >= 3) {
-              const vNumInt = parseInt(vNum);
-              const iNumInt = parseInt(iNum);
-              const diff = Math.abs(vNumInt - iNumInt);
-
-              // Large difference penalty (e.g., 980 vs 3650)
-              if (diff > 1000) {
-                score -= 8;
-              }
-              // Medium difference penalty (e.g., 980 vs 1200)
-              else if (diff > 500) {
-                score -= 4;
-              }
-              // Small difference penalty (e.g., 980 vs 985)
-              else if (diff > 100) {
-                score -= 2;
-              }
-            }
-          });
-        });
-
-        // Additional penalty if no exact number matches found but vehicle has specific numbers
-        if (
-          !hasExactNumberMatch &&
-          vehicleNumbers.length > 0 &&
-          vehicleNumbers[0].length >= 3
-        ) {
-          score -= 3;
-        }
-      }
-
-      // Letter-number combinations
-      const vehicleAlphaNum =
-        vehicleNameNorm.match(/(\d+[a-z]+|[a-z]+\d+)/g) || [];
-      vehicleAlphaNum.forEach((pattern) => {
-        if (img.modelNorm.includes(pattern)) {
-          score += 8;
-        }
-      });
-
-      // Word matching - split into words and check overlap
-      const vehicleWords = vehicleNameNorm
-        .split(/\s+/)
-        .filter((w) => w.length >= 3);
-      const modelWords = img.modelNorm
-        .split(/\s+/)
-        .filter((w) => w.length >= 3);
-
-      let wordMatches = 0;
-      vehicleWords.forEach((vWord) => {
-        modelWords.forEach((mWord) => {
-          if (
-            vWord === mWord ||
-            vWord.includes(mWord) ||
-            mWord.includes(vWord)
-          ) {
-            wordMatches++;
-          }
-        });
-      });
-
-      if (wordMatches > 0) {
-        score += wordMatches * 3;
-      }
-    }
-
-    // Special type handling - HIGH PRIORITY for exact type matches
-    if (typeNameNorm) {
-      if (
-        typeNameNorm.includes("trailer") &&
-        img.modelNorm.includes("trailer")
-      ) {
-        score += 15; // High bonus for trailer match
-      } else if (
-        typeNameNorm.includes("header") &&
-        img.modelNorm.includes("header")
-      ) {
-        score += 15; // High bonus for header match
-      } else if (
-        typeNameNorm.includes("header") &&
-        !img.modelNorm.includes("header") &&
-        !img.modelNorm.includes("trailer")
-      ) {
-        // Penalty for header vehicles matching non-header images
-        score -= 5;
-      } else if (
-        typeNameNorm.includes("trailer") &&
-        !img.modelNorm.includes("trailer") &&
-        !img.modelNorm.includes("header")
-      ) {
-        // Penalty for trailer vehicles matching non-trailer images
-        score -= 5;
-      }
-    }
-
-    // Apply brand bonus
-    score += brandBonus;
-
-    // Update best match with lower threshold
-    if (score > bestScore && score >= 3) {
-      // Much lower threshold
-      bestScore = score;
-      bestMatch = img;
-    }
-  });
-
-  if (bestMatch) {
+  const curatedStrict = curatedAll.filter((img) =>
+    filenameMatchesVehicleStrict(img.filename, vehicleName, brandName)
+  );
+  let curatedResult = scoreVehicleImageCache(
+    curatedStrict,
+    vehicleNameNorm,
+    brandNameNorm,
+    typeNameNorm,
+    vehicleName
+  );
+  if (curatedResult.bestMatch && curatedResult.bestScore >= 3) {
     console.log(
-      `[LocalImage] Dynamic match found: ${vehicleName} -> ${bestMatch.filename} (score: ${bestScore})`
+      `[LocalImage] Dynamic match (strict name): ${vehicleName} -> ${curatedResult.bestMatch.filename} (score: ${curatedResult.bestScore})`
     );
-    return bestMatch.path;
+    return curatedResult.bestMatch.path;
+  }
+
+  const modStrict = modAll.filter((img) =>
+    filenameMatchesVehicleStrict(img.filename, vehicleName, brandName)
+  );
+  let modResult = scoreVehicleImageCache(
+    modStrict,
+    vehicleNameNorm,
+    brandNameNorm,
+    typeNameNorm,
+    vehicleName
+  );
+  if (modResult.bestMatch && modResult.bestScore >= 3) {
+    console.log(
+      `[LocalImage] Mod extract (strict name): ${vehicleName} -> ${modResult.bestMatch.filename} (score: ${modResult.bestScore})`
+    );
+    return modResult.bestMatch.path;
+  }
+
+  // In-game titles rarely match mod filename tokens 1:1 — fall back to fuzzy scoring on full caches
+  modResult = scoreVehicleImageCache(
+    modAll,
+    vehicleNameNorm,
+    brandNameNorm,
+    typeNameNorm,
+    vehicleName
+  );
+  if (modResult.bestMatch && modResult.bestScore >= 3) {
+    console.log(
+      `[LocalImage] Mod extract (fuzzy): ${vehicleName} -> ${modResult.bestMatch.filename} (score: ${modResult.bestScore})`
+    );
+    return modResult.bestMatch.path;
+  }
+
+  curatedResult = scoreVehicleImageCache(
+    curatedAll,
+    vehicleNameNorm,
+    brandNameNorm,
+    typeNameNorm,
+    vehicleName
+  );
+  if (curatedResult.bestMatch && curatedResult.bestScore >= 3) {
+    console.log(
+      `[LocalImage] Dynamic match (fuzzy): ${vehicleName} -> ${curatedResult.bestMatch.filename} (score: ${curatedResult.bestScore})`
+    );
+    return curatedResult.bestMatch.path;
   }
 
   return null;
@@ -1876,17 +1996,17 @@ export function createVehicleCard(vehicle) {
               <i class="bi ${vehicleIcon} fs-4 text-farm-accent me-2"></i>
               ${
                 vehicleDisplay.isImage
-                  ? `<div class="vehicle-display-container" style="width: 80px; height: 60px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 2px 6px rgba(0,0,0,0.15); position: relative; overflow: hidden; background: #f8f9fa; cursor: pointer;"
+                  ? `<div class="vehicle-display-container vehicle-shop-thumb"
                         onclick="dashboard.showVehicleImage('${vehicleDisplay.imageUrl}', '${vehicleDisplay.displayText}', '${vehicle.brand}')">
-                     <img src="${vehicleDisplay.imageUrl}" alt="${vehicleDisplay.displayText}" style="max-width: 76px; max-height: 56px; object-fit: contain; border-radius: 4px; transition: transform 0.2s ease;"
+                     <img class="vehicle-shop-thumb-img" src="${vehicleDisplay.imageUrl}" alt="${vehicleDisplay.displayText}"
                           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                           onmouseover="this.style.transform='scale(1.05)'"
                           onmouseout="this.style.transform='scale(1)'" />
-                     <div style="display: none; color: #495057; font-size: 10px; font-weight: bold; text-align: center; padding: 2px; line-height: 1.1; word-wrap: break-word; max-width: 76px; background: #e9ecef; width: 100%; height: 100%; align-items: center; justify-content: center; border-radius: 7px;">
+                     <div class="vehicle-shop-thumb-fallback">
                        ${vehicleDisplay.displayText}
                      </div>
-                     <div style="position: absolute; top: 2px; right: 2px; opacity: 0.7; transition: opacity 0.2s ease;">
-                       <i class="bi bi-zoom-in text-dark" style="font-size: 12px;"></i>
+                     <div class="vehicle-shop-thumb-zoom">
+                       <i class="bi bi-zoom-in"></i>
                      </div>
                    </div>`
                   : `<div class="vehicle-display-container" style="width: 80px; height: 60px; border-radius: 8px; background: ${vehicleDisplay.background}; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 2px 6px rgba(0,0,0,0.15); position: relative; overflow: hidden;">

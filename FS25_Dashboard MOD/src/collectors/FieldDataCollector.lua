@@ -1,4 +1,4 @@
--- FS25 FarmDashboard | FieldDataCollector.lua | v1.0.12
+-- FS25 FarmDashboard | FieldDataCollector.lua | v2.0.0
 
 FieldDataCollector = {}
 
@@ -11,6 +11,11 @@ function FieldDataCollector:collect()
     
     if not _G.g_currentMission then return fieldData end
     if not _G.g_fieldManager or not _G.g_fieldManager.fields then return fieldData end
+
+    --- Shown on lime / fertiliser / nitrogen / weed-spray suggestions (limit crop trampling).
+    local TYRE_NOTE_ON_CROP = " Use narrow tyres when working on the crop (lime, fertiliser, spray)."
+    --- When combining several nutrient sources, organic liquids/solids before mineral (player guidance).
+    local FERT_ORGANIC_FIRST = " Prefer manure or slurry before solid or liquid mineral fertilizer when using multiple products."
 
     -- ====================================================================
     -- PRECISION FARMING DETECTION
@@ -41,17 +46,43 @@ function FieldDataCollector:collect()
         return nil
     end
 
-    --- Weed: engine may return 0–1 (fraction) or 0–4 (discrete stages). Do not treat 4 as 400%.
-    local function weedPercentForDisplay(w)
+    --- Roller / soil compaction: FS `FieldState.rollerLevel` (FieldState.lua). After `update`, higher values mean *more rolling
+    --- still required* / less compacted; lower = already rolled — opposite of a 0–1 “rolled progress”. We export `rollerLevel`
+    --- as rolled fraction (1 = done, 0 = not rolled) so JSON/UI match the HUD.
+    local function readRollerFromState(st)
+        if not st then return 0 end
+        local ok, v = pcall(function()
+            local r = st.rollerLevel or st.rollLevel or st.rollingLevel
+            if r ~= nil and type(r) == "number" then return r end
+            return 0
+        end)
+        if ok and type(v) == "number" then return v end
+        return 0
+    end
+
+    --- Engine raw: low = already rolled, high = still needs rolling (0–1). Output: rolled fraction 0–1 for JSON/UI.
+    local function rollerLevelAsRolledFraction(raw)
+        raw = raw or 0
+        if raw < 0 then raw = 0 end
+        if raw > 1 and raw <= 255 then raw = raw / 255 end
+        if raw > 1 then raw = 1 end
+        return 1 - raw
+    end
+
+    --- Weed: integer 0–4 = FS stages; else 0–1 fraction; else 0–100 = percent. Normalize to 0–1.
+    local function weedNorm01(w)
         w = w or 0
         if w < 0 then w = 0 end
-        if w <= 1 then
-            return math.floor(w * 100)
+        if w <= 4 and w == math.floor(w) then
+            return math.min(1, w / 4)
         end
-        if w <= 4 then
-            return math.min(100, math.floor((w / 4) * 100))
-        end
-        return math.min(100, math.floor(w))
+        if w <= 1 then return w end
+        if w <= 100 then return math.min(1, w / 100) end
+        return math.min(1, w / 255)
+    end
+
+    local function weedPercentForDisplay(w)
+        return math.min(100, math.floor(weedNorm01(w) * 100 + 0.5))
     end
 
     -- Create the NPC FieldState object (Used ONLY for unowned fields)
@@ -86,6 +117,8 @@ function FieldDataCollector:collect()
             growthState           = 0,
             maxGrowthState        = 0,
             growthStatePercentage = 0,
+            --- Raw `numGrowthStates` from fruit desc (grass can be 8); used for rolling window vs UI-capped `maxGrowthState`.
+            engineNumGrowthStates = 0,
             harvestReady          = false,
             isWithered            = false,
             isHarvested           = false,
@@ -109,11 +142,14 @@ function FieldDataCollector:collect()
             isScanned             = false,
             nitrogenText          = "",
             limeText              = "",
+            phLimeBarMin          = 0,
+            phLimeBarMax          = 0,
             needsWork             = false,
             needsPlowing          = false,
             needsLime             = false,
             needsFertilizer       = false,
             needsWeeding          = false,
+            needsRolling          = false,
             suggestions           = {}
         }
 
@@ -262,14 +298,31 @@ function FieldDataCollector:collect()
             fData.mulchLevel = maxMulch
         end
 
-        -- Engine GroundType Cache Override for Visual Dirt
+        -- 1c. Roller: read raw `rollerLevel`, export inverted rolled fraction for API/UI parity with HUD.
+        do
+            local raw = 0
+            if field.fieldState and type(field.fieldState.update) == "function" then
+                pcall(function() field.fieldState:update(cx, cz) end)
+                raw = readRollerFromState(field.fieldState)
+            elseif probeState and type(probeState.update) == "function" then
+                pcall(function() probeState:update(cx, cz) end)
+                raw = readRollerFromState(probeState)
+            end
+            fData.rollerLevel = rollerLevelAsRolledFraction(raw)
+        end
+
+        -- Engine GroundType cache: only adjust "visual dirt" when there is NO crop.
+        -- If we clobber growthState with groundType while fruit is planted, rolling / stage-1 tasks
+        -- disagree with the in-game field map (e.g. field still shows "needs rolling").
         local gType = fData.groundType
-        if gType == 3 or gType == 4 then
-            if fData.growthState == 0 then fData.growthState = 1 end
-            fData.harvestReady = false
-        elseif gType == 1 or gType == 2 then
-            fData.growthState  = 0
-            fData.harvestReady = false
+        if (fData.fruitTypeIndex or 0) == 0 then
+            if gType == 3 or gType == 4 then
+                if fData.growthState == 0 then fData.growthState = 1 end
+                fData.harvestReady = false
+            elseif gType == 1 or gType == 2 then
+                fData.growthState  = 0
+                fData.harvestReady = false
+            end
         end
 
         -- ====================================================================
@@ -279,7 +332,8 @@ function FieldDataCollector:collect()
             local ftDesc = _G.g_fruitTypeManager:getFruitTypeByIndex(fData.fruitTypeIndex)
             if ftDesc then
                 fData.fruitType      = ftDesc.name or "unknown"
-                fData.maxGrowthState = ftDesc.numGrowthStates or 0
+                fData.engineNumGrowthStates = ftDesc.numGrowthStates or 0
+                fData.maxGrowthState = fData.engineNumGrowthStates
                 -- Grass: FS25 field UI uses 4 growth stages; engine numGrowthStates can be 8
                 local ftUpper = string.upper(tostring(fData.fruitType or ""))
                 if ftUpper == "GRASS" and fData.maxGrowthState > 4 then
@@ -322,6 +376,17 @@ function FieldDataCollector:collect()
                     fData.growthStatePercentage = math.min(100, math.floor((fData.growthState / maxStateToShow) * 100))
                     if fData.harvestReady then fData.growthStatePercentage = 100 end
                 end
+
+                -- Grass: engine often marks harvest-ready at 3/4; only treat as ready at final growth stage (4/4).
+                if ftUpper == "GRASS" and (fData.maxGrowthState or 0) > 0 and (fData.growthState or 0) > 0
+                    and (fData.growthState or 0) < fData.maxGrowthState then
+                    fData.harvestReady = false
+                    fData.growthLabel  = "growing"
+                    fData.stateName    = "Growing"
+                    if maxStateToShow > 0 then
+                        fData.growthStatePercentage = math.min(99, math.floor((fData.growthState / maxStateToShow) * 100))
+                    end
+                end
             end
         end
 
@@ -330,6 +395,34 @@ function FieldDataCollector:collect()
         -- ====================================================================
         local nLevel, nTarget, phLevel, phTarget = 0, 0, 0, 0
         local isScanned = false
+        local sumPhBarMin, validPhBarMin = 0, 0
+
+        --- Decode PF pH map raw 1..31 scale to pH if needed (same as ptPh).
+        local function decodePhRaw(v)
+            if not v or type(v) ~= "number" then return nil end
+            if v >= 1 and v <= 31 and v % 1 == 0 then return (v * 0.125) + 4.375 end
+            return v
+        end
+
+        --- Lower end of the "healthy" pH range for this soil type (for UI bar + lime band).
+        --- Tries PF pHMap methods; falls back to optimal − margin (per soil sample).
+        local function getPhBarMinForSoilType(pHMap, soilTypeIdx, optimalPh)
+            local tryNames = {
+                "getMinimumPHValueForSoilTypeIndex",
+                "getMinPHValueForSoilTypeIndex",
+                "getMinimumRecommendedPHForSoilTypeIndex",
+                "getMinRecommendedPHForSoilTypeIndex",
+            }
+            for _, nm in ipairs(tryNames) do
+                local v = callMethod(pHMap, nm, soilTypeIdx)
+                v = decodePhRaw(v)
+                if v and v > 0 and v < (optimalPh or 99) then return v end
+            end
+            if optimalPh and optimalPh > 0 then
+                return math.max(4.3, optimalPh - 1.2)
+            end
+            return 5.5
+        end
 
         if isPF and pfInstance then
             local baseRadius = math.sqrt(fData.fieldAreaInSqm / math.pi)
@@ -387,6 +480,14 @@ function FieldDataCollector:collect()
                         if ptPhTgt >= 1 and ptPhTgt <= 31 and ptPhTgt % 1 == 0 then ptPhTgt = (ptPhTgt * 0.125) + 4.375 end
                         sumPhTarget = sumPhTarget + ptPhTgt
                     end
+                    local optForBar = ptPhTgt
+                    if optForBar and optForBar > 0 then
+                        local barMinPt = getPhBarMinForSoilType(pfInstance.pHMap, soilType, optForBar)
+                        if barMinPt and barMinPt > 0 then
+                            sumPhBarMin = sumPhBarMin + barMinPt
+                            validPhBarMin = validPhBarMin + 1
+                        end
+                    end
                 end
                 end
             end
@@ -395,17 +496,25 @@ function FieldDataCollector:collect()
             if validPh > 0 then phLevel = sumPh / validPh; phTarget = sumPhTarget / validPh end
         end
 
+        local phBarMinAvg = 0
+        if validPhBarMin > 0 then phBarMinAvg = sumPhBarMin / validPhBarMin end
+        if phBarMinAvg <= 0 and phTarget > 0 then phBarMinAvg = math.max(4.3, phTarget - 1.2) end
+        if phBarMinAvg <= 0 then phBarMinAvg = 5.5 end
+
         fData.isScanned      = isScanned
         fData.nitrogenLevel  = nLevel
         fData.targetNitrogen = nTarget
         fData.phValue        = phLevel
         fData.targetPh       = phTarget
+        fData.phLimeBarMin   = phBarMinAvg
+        fData.phLimeBarMax   = phTarget
 
         -- ====================================================================
         -- 4. STATUS FLAGS AND SUGGESTIONS
         -- ====================================================================
         fData.needsPlowing = fData.plowLevel < 1
-        fData.needsWeeding = fData.weedLevel > 0.3
+        -- ~15%+ weeds (handles 0–1, 0–4 stages, or 0–100 percent-style reads)
+        fData.needsWeeding = weedNorm01(fData.weedLevel) > 0.15
 
         if isPF then
             if not isScanned then
@@ -419,9 +528,15 @@ function FieldDataCollector:collect()
                 fData.nitrogenText       = string.format("%.0f / %.0f kg/ha", nLevel, nTarget)
                 fData.limeText           = string.format("%.1f pH", phLevel)
                 fData.fertilizationLevel = nTarget > 0 and math.min(2, (nLevel / nTarget) * 2) or 0
-                -- Lime suggested when below map target window or absolute soil pH below 6.5
-                fData.limeLevel          = ((phTarget > 0 and phLevel >= (phTarget - 0.2)) or phLevel >= 6.5) and 1 or 0
-                fData.needsLime          = (phTarget > 0 and phLevel < (phTarget - 0.2)) or (phLevel < 6.5)
+                -- Lime: use PF optimal pH for sampled soil types (targetPh); band matches in-game recommendation (~0.2 below target).
+                local limeBand = 0.2
+                if phTarget > 0 then
+                    fData.limeLevel   = (phLevel >= (phTarget - limeBand)) and 1 or 0
+                    fData.needsLime   = phLevel < (phTarget - limeBand)
+                else
+                    fData.limeLevel   = phLevel >= 6.5 and 1 or 0
+                    fData.needsLime   = phLevel < 6.5
+                end
                 fData.needsFertilizer    = nTarget > 0 and (nLevel < nTarget - 10)
             end
         else
@@ -431,10 +546,35 @@ function FieldDataCollector:collect()
             fData.limeText        = fData.needsLime and "Needed" or "Done"
         end
 
-        fData.needsWork = fData.needsFertilizer or fData.needsLime or fData.needsWeeding or fData.needsPlowing
-
         local fruitUp = string.upper(tostring(fData.fruitType or ""))
         local isGrass = (fruitUp == "GRASS")
+
+        -- Lime on growing crops: not practical after emergence past stage 3 (arable only).
+        if not isGrass and (fData.fruitTypeIndex or 0) > 0 and (fData.growthState or 0) > 3 then
+            fData.needsLime = false
+        end
+
+        -- Roll: first growth stage only; `rollerLevel` here is rolled fraction (1 = done), so need roll while < 1.
+        fData.needsRolling = false
+        if (fData.fruitTypeIndex or 0) > 0 and not fData.harvestReady and not fData.isWithered
+            and (fData.rollerLevel or 0) < 1 then
+            local engMax = fData.engineNumGrowthStates or 0
+            if engMax <= 0 then engMax = fData.maxGrowthState or 0 end
+            local gs = fData.growthState or 0
+            local ftUp = string.upper(tostring(fData.fruitType or ""))
+            local inFirstStage = false
+            if ftUp == "GRASS" and engMax > 4 then
+                inFirstStage = (math.ceil((gs * 4) / engMax) == 1)
+            else
+                inFirstStage = (gs == 1)
+            end
+            fData.needsRolling = inFirstStage
+        end
+
+        fData.needsWork = fData.needsFertilizer or fData.needsLime or fData.needsWeeding or fData.needsPlowing or fData.needsRolling
+
+        --- No crop planted yet (even if groundType forced growthState>0 for cultivated soil).
+        local noCrop = (fData.fruitTypeIndex or 0) == 0
 
         if fData.isWithered then
             if isGrass then
@@ -442,43 +582,78 @@ function FieldDataCollector:collect()
             else
                 table.insert(fData.suggestions, {priority = 1, type = "harvest", action = "Harvest withered crop", reason = "Crop has withered"})
             end
-        elseif fData.harvestReady and (fData.mulchLevel or 0) < 1 and not fData.isHarvested and fData.growthLabel ~= "harvested" then
+        elseif not noCrop and fData.harvestReady and (fData.mulchLevel or 0) < 1 and not fData.isHarvested and fData.growthLabel ~= "harvested" then
             -- Do not suggest harvest when stubble is mulched or crop already taken (stale harvestReady is common)
             local harvestAction = isGrass and "Harvest grass" or "Harvest crop"
             local harvestReason = isGrass and "Grass is ready to cut" or "Crop is ready for harvest"
             table.insert(fData.suggestions, {priority = 1, type = "harvest", action = harvestAction, reason = harvestReason})
-        elseif fData.growthState == 0 and fData.hectares > 0 then
-            if fData.needsPlowing then
-                table.insert(fData.suggestions, {priority = 2, type = "preparation", action = "Plow field",          reason = "Field needs plowing before planting"})
-            elseif isPF and not isScanned then
-                table.insert(fData.suggestions, {priority = 2, type = "preparation", action = "Soil Map",            reason = "Field needs scanning"})
+        elseif noCrop and fData.hectares > 0 then
+            -- Order: Soil map (10) → plow (11) → cultivate if mulched (12) → lime (13) → sow (14). noCrop, not growthState==0 — cultivated empty often reports growthState 1.
+            if isPF and not isScanned then
+                table.insert(fData.suggestions, {priority = 10, type = "preparation", action = "Soil Map", reason = "Scan field before lime and planting decisions"})
             else
-                -- No plow required: min-till / no-till options instead of implying a plow pass
-                table.insert(fData.suggestions, {priority = 2, type = "planting",    action = "Cultivate or direct drilling", reason = "Field is ready for seeding (no plow required)"})
-            end
-        elseif fData.growthState > 0 and not fData.harvestReady then
-            if fData.needsWeeding then
-                table.insert(fData.suggestions, {priority = 3, type = "maintenance", action = "Remove weeds",        reason = string.format("Weed level: %.0f%%", weedPercentForDisplay(fData.weedLevel))})
-            end
-            if isPF then
-                if not isScanned then
-                    table.insert(fData.suggestions, {priority = 4, type = "info",        action = "Soil Map",        reason = "Field needs scanning"})
+                if fData.needsPlowing then
+                    table.insert(fData.suggestions, {priority = 11, type = "preparation", action = "Plow field", reason = "Plow before lime and seeding when the field requires it (e.g. after harvest or heavy residue)"})
+                end
+                if (fData.mulchLevel or 0) >= 1 then
+                    table.insert(fData.suggestions, {priority = 12, type = "preparation", action = "Cultivate field", reason = "Mulched stubble — cultivate before lime and drilling (needed even with direct drill or planter)"})
+                end
+                if isPF and isScanned and fData.needsLime then
+                    local tgt = phTarget > 0 and string.format("%.1f", phTarget) or "6.5"
+                    local band = phTarget > 0 and string.format("%.1f", phTarget - 0.2) or "6.3"
+                    table.insert(fData.suggestions, {priority = 13, type = "maintenance", action = "Apply lime", reason = string.format("Avg pH %.1f / soil target %s (lime before seeding; below ~%s)%s", phLevel, tgt, band, TYRE_NOTE_ON_CROP)})
+                elseif not isPF and fData.needsLime then
+                    table.insert(fData.suggestions, {priority = 13, type = "maintenance", action = "Apply lime", reason = "Soil pH needs correction before seeding" .. TYRE_NOTE_ON_CROP})
+                end
+                if fData.needsPlowing then
+                    -- Sow only after plowing is done in-game
+                elseif (fData.plowLevel or 0) >= 1 then
+                    local mulched = (fData.mulchLevel or 0) >= 1
+                    local reason = mulched
+                        and "Soil is prepared (cultivated / mulch worked); sow or plant your next crop"
+                        or "Soil is prepared; sow or plant your next crop"
+                    table.insert(fData.suggestions, {priority = 14, type = "planting", action = "Sow or plant crop", reason = reason})
                 else
-                    if fData.needsLime then
-                        local tgt = phTarget > 0 and string.format("%.1f", phTarget) or "6.5"
-                        table.insert(fData.suggestions, {priority = 3, type = "maintenance", action = "Apply lime",  reason = string.format("Avg pH %.1f / target %s (lime if below 6.5)", phLevel, tgt)})
-                    end
-                    if fData.needsFertilizer and nTarget > 0 then
-                        table.insert(fData.suggestions, {priority = 3, type = "maintenance", action = "Apply nitrogen", reason = string.format("Avg: %.0f / Target: %.0f kg/ha", nLevel, nTarget)})
-                    end
+                    table.insert(fData.suggestions, {priority = 14, type = "planting", action = "Cultivate or direct drilling", reason = "Prepare seedbed, then sow or plant"})
                 end
-            else
-                if fData.needsFertilizer then
-                    table.insert(fData.suggestions, {priority = 3, type = "maintenance", action = "Apply fertilizer", reason = string.format("Fertilization level: %d/2", fData.fertilizationLevel)})
+            end
+        elseif not noCrop and fData.growthState > 0 and not fData.harvestReady then
+            -- Order: PF scan (11) → lime (12, arable stage ≤3) → roll stage 1 (13) → fertiliser (15) → weeds (18). N deferred if early + near target.
+            local gsGrow = fData.growthState or 0
+            local limeOkGrow = fData.needsLime and (isGrass or gsGrow <= 3)
+            local deferEarlyN = isPF and isScanned and nTarget > 0 and gsGrow <= 2 and nLevel >= (nTarget - 20)
+
+            if isPF and not isScanned then
+                table.insert(fData.suggestions, {priority = 11, type = "info", action = "Soil Map", reason = "Scan field for nitrogen and pH targets"})
+            end
+            if isPF and isScanned and limeOkGrow then
+                local tgt = phTarget > 0 and string.format("%.1f", phTarget) or "6.5"
+                local band = phTarget > 0 and string.format("%.1f", phTarget - 0.2) or "6.3"
+                table.insert(fData.suggestions, {priority = 12, type = "maintenance", action = "Apply lime", reason = string.format("Avg pH %.1f / soil target %s (below ~%s)%s", phLevel, tgt, band, TYRE_NOTE_ON_CROP)})
+            elseif not isPF and limeOkGrow then
+                table.insert(fData.suggestions, {priority = 12, type = "maintenance", action = "Apply lime", reason = "Soil pH needs correction" .. TYRE_NOTE_ON_CROP})
+            end
+            if fData.needsRolling then
+                table.insert(fData.suggestions, {priority = 13, type = "maintenance", action = "Roll field", reason = "Needs rolling — grass or crop at first growth stage after planting"})
+            end
+            if isPF and isScanned and fData.needsFertilizer and nTarget > 0 and not deferEarlyN then
+                table.insert(fData.suggestions, {priority = 15, type = "maintenance", action = "Apply nitrogen", reason = string.format("Avg: %.0f / Target: %.0f kg/ha.%s%s", nLevel, nTarget, FERT_ORGANIC_FIRST, TYRE_NOTE_ON_CROP)})
+            elseif not isPF and fData.needsFertilizer then
+                local reason = string.format("Fertilization level: %d/2.%s", fData.fertilizationLevel, FERT_ORGANIC_FIRST)
+                if (fData.fertilizationLevel or 0) >= 1 then
+                    reason = reason .. " Second application with spreader or sprayer to reach full level."
                 end
-                if fData.needsLime then
-                    table.insert(fData.suggestions, {priority = 3, type = "maintenance", action = "Apply lime",       reason = "Soil pH needs correction"})
+                table.insert(fData.suggestions, {priority = 15, type = "maintenance", action = "Apply fertilizer", reason = reason .. TYRE_NOTE_ON_CROP})
+            end
+            if fData.needsWeeding then
+                local wp = weedPercentForDisplay(fData.weedLevel)
+                local weedReason
+                if not isGrass and gsGrow <= 2 then
+                    weedReason = string.format("Weed level: %.0f%% — weeder or hoe suit early growth (around stage 2 or below).", wp)
+                else
+                    weedReason = string.format("Weed level: %.0f%%", wp) .. TYRE_NOTE_ON_CROP .. " Herbicide sprayer recommended once past early growth."
                 end
+                table.insert(fData.suggestions, {priority = 18, type = "maintenance", action = "Remove weeds", reason = weedReason})
             end
         end
 

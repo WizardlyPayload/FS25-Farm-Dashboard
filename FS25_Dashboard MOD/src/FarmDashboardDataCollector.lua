@@ -1,8 +1,11 @@
--- FS25 FarmDashboard | FarmDashboardDataCollector.lua | v1.0.1
+-- FS25 FarmDashboard | FarmDashboardDataCollector.lua | v2.0.0
+-- Collectors run one per time slice across collectionCycleMs (default 60s) so the game
+-- is not hit with every module in one frame; data.json is rewritten after each slice.
 
 FarmDashboardDataCollector = {}
-FarmDashboardDataCollector.updateTimer = 0
 FarmDashboardDataCollector.data = {}
+FarmDashboardDataCollector.moduleCache = {}
+FarmDashboardDataCollector.slotAccumulator = 0
 
 function FarmDashboardDataCollector:init()
     self.collectors = {
@@ -22,18 +25,27 @@ function FarmDashboardDataCollector:init()
     end
 
     self:loadConfig()
+    self:resetStaggerState()
+end
+
+function FarmDashboardDataCollector:resetStaggerState()
+    self.moduleCache = {}
+    self.staggerFirstRunDone = false
+    self.nextSliceIdx = 1
+    self.slotAccumulator = 0
 end
 
 function FarmDashboardDataCollector:loadConfig()
     self.config = {
-        interval         = 10000,
-        enableAnimals    = true,
-        enableVehicles   = true,
-        enableWeather    = true,
-        enableFields     = true,
-        enableFinance    = true,
-        enableEconomy    = true,
-        enableProduction = true
+        interval            = 10000,
+        collectionCycleMs   = 60000,
+        enableAnimals       = true,
+        enableVehicles      = true,
+        enableWeather       = true,
+        enableFields        = true,
+        enableFinance       = true,
+        enableEconomy       = true,
+        enableProduction    = true,
     }
 
     local configPath = getUserProfileAppPath() .. "modSettings/FS25_FarmDashboard/config.xml"
@@ -41,7 +53,14 @@ function FarmDashboardDataCollector:loadConfig()
     if fileExists(configPath) then
         local xmlFile = loadXMLFile("FarmDashboardConfig", configPath)
         if xmlFile ~= 0 then
-            self.config.interval         = getXMLInt(xmlFile,  "farmDashboard.settings#updateInterval") or self.config.interval
+            self.config.interval = getXMLInt(xmlFile, "farmDashboard.settings#updateInterval") or self.config.interval
+            local cycleMs = getXMLInt(xmlFile, "farmDashboard.settings#collectionCycleMs")
+            if cycleMs and cycleMs > 0 then
+                self.config.collectionCycleMs = cycleMs
+            else
+                -- Legacy configs: stretch one old tick across ~7 modules → full cycle length
+                self.config.collectionCycleMs = math.max(60000, (self.config.interval or 10000) * 7)
+            end
             self.config.enableAnimals    = Utils.getNoNil(getXMLBool(xmlFile, "farmDashboard.modules#animals"),    true)
             self.config.enableVehicles   = Utils.getNoNil(getXMLBool(xmlFile, "farmDashboard.modules#vehicles"),   true)
             self.config.enableWeather    = Utils.getNoNil(getXMLBool(xmlFile, "farmDashboard.modules#weather"),    true)
@@ -54,7 +73,8 @@ function FarmDashboardDataCollector:loadConfig()
     else
         createFolder(getUserProfileAppPath() .. "modSettings/FS25_FarmDashboard/")
         local xmlFile = createXMLFile("FarmDashboardConfig", configPath, "farmDashboard")
-        setXMLInt(xmlFile,  "farmDashboard.settings#updateInterval", self.config.interval)
+        setXMLInt(xmlFile, "farmDashboard.settings#updateInterval", self.config.interval)
+        setXMLInt(xmlFile, "farmDashboard.settings#collectionCycleMs", self.config.collectionCycleMs)
         setXMLBool(xmlFile, "farmDashboard.modules#animals",    true)
         setXMLBool(xmlFile, "farmDashboard.modules#vehicles",   true)
         setXMLBool(xmlFile, "farmDashboard.modules#weather",    true)
@@ -66,61 +86,105 @@ function FarmDashboardDataCollector:loadConfig()
         delete(xmlFile)
     end
 
-    FarmDashboard.UPDATE_INTERVAL = self.config.interval
+    self.config.collectionCycleMs = math.max(5000, math.min(1800000, self.config.collectionCycleMs or 60000))
+    FarmDashboard.UPDATE_INTERVAL = self.config.collectionCycleMs
 end
 
-function FarmDashboardDataCollector:update(dt)
-    if not dt or type(dt) ~= "number" or dt <= 0 then return end
-    if not _G.g_currentMission then return end
-
-    self.updateTimer = (self.updateTimer or 0) + dt
-
-    if self.updateTimer >= FarmDashboard.UPDATE_INTERVAL then
-        self.updateTimer = 0
-        local collected = self:collectAllData()
-        if collected then
-            self:writeDataToFile(collected)
+--- Stable order must match slice spacing (one module per slot over collectionCycleMs).
+function FarmDashboardDataCollector:getEnabledCollectorOrder()
+    local order = {}
+    local seq = {
+        { "animals",    "enableAnimals" },
+        { "vehicles",   "enableVehicles" },
+        { "fields",     "enableFields" },
+        { "finance",    "enableFinance" },
+        { "weather",    "enableWeather" },
+        { "economy",    "enableEconomy" },
+        { "production", "enableProduction" }
+    }
+    for _, row in ipairs(seq) do
+        local name, flag = row[1], row[2]
+        if self.config[flag] then
+            table.insert(order, name)
         end
     end
+    return order
 end
 
-function FarmDashboardDataCollector:collectAllData()
+function FarmDashboardDataCollector:assembleDataFromModuleCache()
     if not _G.g_currentMission then return nil end
 
+    local mc = self.moduleCache
     local data = {
         timestamp  = _G.g_time or 0,
         status     = "active",
         gameTime   = self:getGameTime(),
         farmInfo   = self:getFarmInfo(),
-        animals    = {},
-        vehicles   = {},
-        fields     = {},
-        production = {},
-        finance    = {},
-        weather    = {},
-        economy    = {}
+        animals    = mc.animals or {},
+        vehicles   = mc.vehicles or {},
+        fields     = mc.fields or {},
+        production = mc.production or {},
+        finance    = mc.finance or {},
+        weather    = mc.weather or {},
+        economy    = mc.economy or {}
     }
 
-    if self.config.enableAnimals    then data.animals    = self:safeCollect("animals")    end
-    if self.config.enableVehicles   then data.vehicles   = self:safeCollect("vehicles")   end
-    if self.config.enableFields     then data.fields     = self:safeCollect("fields")     end
-    if self.config.enableFinance    then data.finance    = self:safeCollect("finance")    end
-    if self.config.enableWeather    then data.weather    = self:safeCollect("weather")    end
-    if self.config.enableEconomy    then data.economy    = self:safeCollect("economy")    end
-    if self.config.enableProduction then
-        data.production = self:safeCollect("production")
-        -- FIX: Aggregate husbandry storage totals from animal building data.
-        -- ProductionDataCollector no longer collects this so we do it here.
-        data.production.husbandryTotals = self:collectHusbandryTotals()
-    end
-
-    -- Pull money from finance so it is available at top level for the merger
     if data.finance and data.finance.money then
         data.money = data.finance.money
     end
 
     self.data = data
     return data
+end
+
+function FarmDashboardDataCollector:runOneStaggeredSlice(order)
+    local n = #order
+    if n < 1 then return end
+
+    local idx = self.nextSliceIdx or 1
+    if idx > n then idx = 1 end
+    local name = order[idx]
+    self.nextSliceIdx = (idx % n) + 1
+
+    local result = self:safeCollect(name)
+    if name == "production" then
+        local prod = result or {}
+        prod.husbandryTotals = self:collectHusbandryTotals()
+        self.moduleCache.production = prod
+    else
+        self.moduleCache[name] = result or {}
+    end
+
+    local assembled = self:assembleDataFromModuleCache()
+    if assembled then
+        self:writeDataToFile(assembled)
+    end
+end
+
+function FarmDashboardDataCollector:update(dt)
+    if not dt or type(dt) ~= "number" or dt <= 0 then return end
+    if not _G.g_currentMission then return end
+
+    local order = self:getEnabledCollectorOrder()
+    local n = #order
+    if n < 1 then return end
+
+    local cycleMs = self.config.collectionCycleMs
+    local slotMs = cycleMs / n
+
+    if not self.staggerFirstRunDone then
+        self.staggerFirstRunDone = true
+        self.nextSliceIdx = 1
+        self.slotAccumulator = 0
+        self:runOneStaggeredSlice(order)
+        return
+    end
+
+    self.slotAccumulator = (self.slotAccumulator or 0) + dt
+    while self.slotAccumulator >= slotMs do
+        self.slotAccumulator = self.slotAccumulator - slotMs
+        self:runOneStaggeredSlice(order)
+    end
 end
 
 -- FIX: Aggregate milk/manure/slurry totals across all husbandry buildings.
@@ -236,10 +300,8 @@ function FarmDashboardDataCollector:getFarmInfo()
     return farms
 end
 
-function FarmDashboardDataCollector:writeDataToFile(data)
-    local savegameDir    = "default_save"
-    local currentMapName = "Unknown Map"
-
+function FarmDashboardDataCollector:getSavegameDirName()
+    local savegameDir = "default_save"
     if _G.g_currentMission and _G.g_currentMission.missionInfo then
         local info = _G.g_currentMission.missionInfo
         if info.savegameDirectoryName and info.savegameDirectoryName ~= "" then
@@ -247,6 +309,23 @@ function FarmDashboardDataCollector:writeDataToFile(data)
         elseif info.savegameIndex and info.savegameIndex > 0 then
             savegameDir = "savegame" .. tostring(info.savegameIndex)
         end
+    end
+    return savegameDir
+end
+
+--- modSettings/FS25_FarmDashboard/<saveSlot>/ (same folder as data.json)
+function FarmDashboardDataCollector:getDataOutputDir()
+    local dataPath = getUserProfileAppPath() .. "modSettings/FS25_FarmDashboard/" .. self:getSavegameDirName() .. "/"
+    createFolder(dataPath)
+    return dataPath
+end
+
+function FarmDashboardDataCollector:writeDataToFile(data)
+    local savegameDir    = self:getSavegameDirName()
+    local currentMapName = "Unknown Map"
+
+    if _G.g_currentMission and _G.g_currentMission.missionInfo then
+        local info = _G.g_currentMission.missionInfo
         if info.mapTitle and info.mapTitle ~= "" then
             currentMapName = info.mapTitle
         end
@@ -254,8 +333,7 @@ function FarmDashboardDataCollector:writeDataToFile(data)
 
     data.serverInfo = { mapName = currentMapName, saveSlot = savegameDir }
 
-    local dataPath = getUserProfileAppPath() .. "modSettings/FS25_FarmDashboard/" .. savegameDir .. "/"
-    createFolder(dataPath)
+    local dataPath = self:getDataOutputDir()
 
     -- Pretty-print (indented) so data.json is human-readable and tools can open it
     local jsonData = self:toJSON(data, 0)
@@ -353,4 +431,5 @@ function FarmDashboardDataCollector:shutdown()
     for name, collector in pairs(self.collectors) do
         if collector.shutdown then collector:shutdown() end
     end
+    self:resetStaggerState()
 end

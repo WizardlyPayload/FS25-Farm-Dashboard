@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+  <defs>
+    <pattern id="fsGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M0 10h20M10 0v20" fill="none" stroke="#c8d0c8" stroke-opacity="0.08" stroke-width="0.55"/>
+    </pattern>
+    <pattern id="fsGrain" width="40" height="40" patternUnits="userSpaceOnUse">
+      <circle cx="5" cy="7" r="0.75" fill="#b0bcb0" opacity="0.07"/>
+      <circle cx="24" cy="19" r="0.55" fill="#a8b4a8" opacity="0.06"/>
+      <path d="M30 9l1-2.8 1 2.8-1.8 1.8z" fill="none" stroke="#98a898" stroke-opacity="0.07" stroke-width="0.45"/>
+      <path d="M11 29l1-2.2 1 2.2-1 1.3z" fill="none" stroke="#98a898" stroke-opacity="0.06" stroke-width="0.4"/>
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="#121814"/>
+  <rect width="100%" height="100%" fill="url(#fsGrid)"/>
+  <rect width="100%" height="100%" fill="url(#fsGrain)" opacity="0.85"/>
+</svg>

@@ -1,4 +1,4 @@
-// FS25 FarmDashboard | navigation.js | v1.0.0
+// FS25 FarmDashboard | navigation.js | v2.0.0
 
 export function setupEventListeners() {
   const folderInput = document.getElementById("folder-input");
@@ -16,6 +16,34 @@ export function setupEventListeners() {
   const navSettingsBtn = document.getElementById("nav-settings-btn");
   if (navSettingsBtn) {
     navSettingsBtn.addEventListener("click", () => this.openSetup());
+  }
+
+  const landingModImagesBtn = document.getElementById("landing-import-mod-images");
+  if (landingModImagesBtn && typeof require === "function") {
+    let modShopExportInFlight = false;
+    landingModImagesBtn.addEventListener("click", async () => {
+      if (modShopExportInFlight) return;
+      modShopExportInFlight = true;
+      const originalHtml = landingModImagesBtn.innerHTML;
+      landingModImagesBtn.innerHTML =
+        '<i class="bi bi-hourglass-split me-1"></i>Scanning mods…';
+      let cleanupProgress = null;
+      try {
+        const { ipcRenderer } = require("electron");
+        if (ipcRenderer && typeof ipcRenderer.invoke === "function") {
+          if (typeof window.attachModExportProgress === "function") {
+            cleanupProgress = window.attachModExportProgress(ipcRenderer);
+          }
+          await ipcRenderer.invoke("export-mod-store-images");
+        }
+      } catch (e) {
+        console.error("[landing-import-mod-images]", e);
+      } finally {
+        if (typeof cleanupProgress === "function") cleanupProgress();
+        modShopExportInFlight = false;
+        landingModImagesBtn.innerHTML = originalHtml;
+      }
+    });
   }
   const navHomeBtn = document.getElementById("nav-home-btn");
   if (navHomeBtn) {

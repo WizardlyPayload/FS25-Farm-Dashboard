@@ -1,4 +1,4 @@
--- FS25 FarmDashboard | ProductionDataCollector.lua | v1.2.0
+-- FS25 FarmDashboard | ProductionDataCollector.lua | v2.0.0
 -- 1) ProductionChainManager:getProductionPointsForFarmId / getFactoriesForFarmId
 -- 2) Placeable scan (REQUIRED on many builds): PlaceableProductionPoint.lua has
 --    addProductionPoint() commented out — points may never register on the manager.

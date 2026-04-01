@@ -1,4 +1,4 @@
-// FS25 FarmDashboard | environment.js | v1.0.0
+// FS25 FarmDashboard | environment.js | v2.0.0
 
 export function formatGameTime(dayTimeMinutes) {
   const hours = Math.floor(dayTimeMinutes / 60);

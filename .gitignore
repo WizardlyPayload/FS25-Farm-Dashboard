@@ -22,5 +22,10 @@ desktop.ini
 *.swp
 *.swo
 
-# Optional: unpacked build (if you ever run pack without cleaning)
-**/win-unpacked/
+# Mod shop images exported from Documents/.../FarmingSimulator2025/mods (local only)
+FS25_Dashboard APP/web/assests/img/items_mod_extract/*
+!FS25_Dashboard APP/web/assests/img/items_mod_extract/.gitkeep
+
+# Optional: keep built installers only in GitHub Releases, not in git
+# (uncomment if you prefer never to commit installers)
+# *.exe

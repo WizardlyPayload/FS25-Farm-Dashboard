@@ -1,0 +1,23 @@
+Sync MAIN CODEBASE -> this GitHub clone (skips node_modules and release folders)
+================================================================================
+
+Option A — From MAIN CODEBASE (recommended)
+  Open PowerShell in your MAIN CODEBASE folder, then:
+    .\tools\Sync-To-GitClone.ps1
+
+  Optional custom git path:
+    .\tools\Sync-To-GitClone.ps1 -GitRoot "C:\path\to\FS25-Farm-Dashboard"
+
+Option B — From this clone (FS25-Farm-Dashboard)
+  Open PowerShell here, then:
+    .\sync-from-main-codebase.ps1
+
+  If auto-detect fails, pass your MAIN folder:
+    .\sync-from-main-codebase.ps1 -MainRoot "C:\Users\...\MAIN CODEBASE"
+
+Option C — Full two-way script (paths pre-set for this machine)
+  From MAIN CODEBASE:
+    .\tools\Sync-FarmDashboard-Trees.ps1 -Direction ToGit
+
+Then open this folder in GitHub Desktop, review, commit, and push.
+Do not commit release/ or node_modules/ — they are in .gitignore.

@@ -1,14 +1,32 @@
--- FS25 FarmDashboard | FarmDashboard.lua | v1.0.0
+-- FS25 FarmDashboard | FarmDashboard.lua | v2.0.0
+-- Authors: JoshWalki, WizardlyPayload
 
 FarmDashboard = {}
 FarmDashboard.MOD_NAME = "FS25_FarmDashboard"
 FarmDashboard.MOD_DIR = _G.g_currentModDirectory
-FarmDashboard.VERSION = "1.0.0.0"
+FarmDashboard.VERSION = "2.0.0.0"
 FarmDashboard.UPDATE_INTERVAL = 10000
 FarmDashboard.PORT = 8766
 FarmDashboard.readyAt = nil
 
 local hasLoaded = false
+
+--- Collectors and data.json must run in single-player (often no g_server) and on MP host/dedicated — not on MP clients.
+function FarmDashboard:isAuthority()
+    if not _G.g_currentMission then return false end
+    if _G.g_server ~= nil then
+        if type(_G.g_server.getIsServer) == "function" then
+            local ok, isSrv = pcall(function() return _G.g_server:getIsServer() end)
+            if ok then return isSrv end
+        end
+        return true
+    end
+    if _G.g_connectionManager ~= nil and type(_G.g_connectionManager.getIsClient) == "function" then
+        local ok, isCl = pcall(function() return _G.g_connectionManager:getIsClient() end)
+        if ok and isCl then return false end
+    end
+    return true
+end
 
 function FarmDashboard:loadMap()
     if hasLoaded then return end
@@ -26,7 +44,7 @@ function FarmDashboard:loadMap()
 
     FarmDashboardDataCollector:init()
 
-    if _G.g_server ~= nil then
+    if self:isAuthority() then
         _G.g_currentMission:addUpdateable(FarmDashboard)
         FarmDashboard.isRegistered = true
         local currentTime = _G.g_time or 0
@@ -37,13 +55,16 @@ function FarmDashboard:loadMap()
 end
 
 function FarmDashboard:onStartMission()
-    if _G.g_server ~= nil and not self.isRegistered then
+    if self:isAuthority() and not self.isRegistered then
         if _G.g_currentMission then
             _G.g_currentMission:addUpdateable(FarmDashboard)
             self.isRegistered = true
             local currentTime = _G.g_time or 0
             FarmDashboard.readyAt = (type(currentTime) == "number") and (currentTime + 2000) or 2000
         end
+    end
+    if FarmDashboardDataCollector and FarmDashboardDataCollector.resetStaggerState then
+        FarmDashboardDataCollector:resetStaggerState()
     end
 end
 
@@ -59,7 +80,7 @@ end
 
 function FarmDashboard:update(dt)
     if not _G.g_currentMission then return end
-    if _G.g_server == nil then return end
+    if not self:isAuthority() then return end
     if not FarmDashboard.readyAt or not _G.g_time then return end
     if type(_G.g_time) ~= "number" or type(FarmDashboard.readyAt) ~= "number" then return end
     if _G.g_time < FarmDashboard.readyAt then return end

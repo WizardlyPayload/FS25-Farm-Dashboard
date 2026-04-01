@@ -1,4 +1,4 @@
-// FS25 FarmDashboard | productions.js | v1.0.1
+// FS25 FarmDashboard | productions.js | v2.0.0
 // Production chains: fill levels + active slots for the active farm.
 
 function escapeHtml(s) {

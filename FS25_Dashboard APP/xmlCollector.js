@@ -1,4 +1,4 @@
-// FS25 FarmDashboard | xmlCollector.js | v1.0.0
+// FS25 FarmDashboard | xmlCollector.js | v2.0.0
 
 /**
  * xmlCollector.js  —  FS25 Savegame XML Reader
@@ -193,6 +193,7 @@ function parseFieldsXml(xml, farmlandOwnership, scannedFarmlands, farmlandStats)
         const lastGrowth  = parseInt(attr(a, 'lastGrowthState')   || '0');
         const plannedFruit = attr(a, 'plannedFruit') || 'FALLOW';
         const stoneLevel  = parseInt(attr(a, 'stoneLevel')  || '0');
+        const rollerLevel = parseInt(attr(a, 'rollerLevel')  || '0', 10);
 
         // Resolve ownership via farmland.xml join
         const ownerFarmId = farmlandOwnership ? (farmlandOwnership.get(id) || 0) : 0;
@@ -238,6 +239,8 @@ function parseFieldsXml(xml, farmlandOwnership, scannedFarmlands, farmlandStats)
             limeLevel, sprayLevel, sprayType,
             plowLevel, stubbleShredLevel: stubble,
             stoneLevel,
+            rollerLevel,
+            needsRolling: false,
             harvestReady: isHarvestReady,
             isHarvested,
             isWithered, needsWork,

@@ -1,4 +1,4 @@
-// FS25 FarmDashboard | pastures.js | v1.1.1
+// FS25 FarmDashboard | pastures.js | v2.0.0
 
 /**
  * Resolve which farm a pasture belongs to: pasture row first, then any animal (REST often only had building id on parent).

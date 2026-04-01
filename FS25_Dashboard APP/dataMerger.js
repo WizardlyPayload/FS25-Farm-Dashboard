@@ -1,15 +1,20 @@
-// FS25 FarmDashboard | dataMerger.js | v1.0.0
+// FS25 FarmDashboard | dataMerger.js | v2.0.0
 
 /**
  * dataMerger.js  —  Merge Lua live data + XML savegame data
  *
  * Priority:
- *  Lua wins  → live animals, live weather/temperature, live vehicle engine state
- *  XML wins  → field data (fields.xml is authoritative & complete), 
+ *  Lua wins  → live animals, live weather/temperature, live vehicle engine state,
+ *               field `needsWork` / PF overlay when a Lua row exists (XML heuristics are coarse)
+ *  XML wins  → base field row from fields.xml (crop, growthState, soil flags),
  *               weather forecast, missions, farm statistics, game settings
- *  Merged    → vehicles (XML farmId/price + Lua engine/speed), 
+ *  Merged    → vehicles (XML farmId/price + Lua engine/speed),
  *               economy (XML history + Lua sell points),
  *               farms (XML players/stats + Lua live money)
+ *
+ *  Field “Suggested Next Step” → when Lua has a row for that farmlandId, suggestions
+ *  come from Lua only (live game). XML suggestions are used only when there is no Lua
+ *  match (savegame-only / HTTP path). Never merge two suggestion lists.
  */
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -214,11 +219,14 @@ function fixFieldOwnership(luaFields, farmlandOwnership) {
  * XML fields.xml:        fruitType, growthState, groundType, weedState,
  *                        limeLevel, sprayLevel, plowLevel, ownerFarmId
  * Lua FieldDataCollector: isPrecisionFarming, nitrogenLevel, targetNitrogen,
- *                          phValue, targetPh, isScanned, nitrogenText, limeText,
+ *                          phValue, targetPh, phLimeBarMin, phLimeBarMax, isScanned, nitrogenText, limeText,
  *                          posX, posZ, hectares
  *
  * Stubble mulch: Lua `mulchLevel` merged with XML `stubbleShredLevel` when both exist.
  * Lua wins for PF values (only available from runtime density map reads).
+ *
+ * Suggestions: computed in-game in FieldDataCollector.lua from live state. When both
+ * XML and Lua exist for a field, only Lua’s suggestions are exposed (single source).
  */
 function mergeFields(xmlFields, luaFields) {
     // Normalise both to arrays — Lua serialises empty tables as {} not []
@@ -250,6 +258,8 @@ function mergeFields(xmlFields, luaFields) {
             targetNitrogen     : luaField.targetNitrogen     || 0,
             phValue            : luaField.phValue            || 0,
             targetPh           : luaField.targetPh           || 0,
+            phLimeBarMin       : luaField.phLimeBarMin       ?? 0,
+            phLimeBarMax       : luaField.phLimeBarMax       ?? 0,
             isScanned          : luaField.isScanned          || false,
             nitrogenText       : luaField.nitrogenText       || xmlField.nitrogenText || '',
             limeText           : luaField.limeText           || xmlField.limeText     || '',
@@ -262,17 +272,10 @@ function mergeFields(xmlFields, luaFields) {
             hectares : luaField.hectares || luaField.areaHa      || xmlField.hectares || 0,
         };
 
-        // Merge suggestions: XML base + any Lua-only PF suggestions, deduped
-        // Lua serialises empty Lua tables as {} objects — normalise to array
-        const xmlSuggestions = Array.isArray(xmlField.suggestions) ? xmlField.suggestions : [];
-        const rawLuaSugg = luaField.suggestions;
-        const luaSuggestionsArr = Array.isArray(rawLuaSugg)
-            ? rawLuaSugg
-            : (rawLuaSugg && typeof rawLuaSugg === 'object' ? Object.values(rawLuaSugg) : []);
-        const luaSuggestions = luaSuggestionsArr.filter(ls =>
-            ls && ls.action && !xmlSuggestions.some(xs => xs.action === ls.action)
-        );
-        const allSuggestions = [...xmlSuggestions, ...luaSuggestions]
+        // Single source for suggestions: live Lua (game) when this row is matched.
+        // Do not merge XML + Lua lists — different priority scales and stale XML harvest flags.
+        const mergedSuggestions = toArr(luaField.suggestions)
+            .filter((s) => s && s.action)
             .sort((a, b) => (a.priority || 9) - (b.priority || 9));
 
         const stubbleMerged = Number(
@@ -289,8 +292,11 @@ function mergeFields(xmlFields, luaFields) {
             ...xmlField,    // XML base: soil state, ownership, crop, growthState
             ...spatialData, // Lua: map position and area
             ...pfOverlay,   // Lua: Precision Farming nitrogen/pH
-            needsWork   : xmlField.needsWork || luaField.needsWork || false,
-            suggestions : allSuggestions,
+            // Lua is authoritative: XML uses coarse heuristics (e.g. plowLevel < 1 on growing crops).
+            needsWork   : luaField.needsWork ?? xmlField.needsWork ?? false,
+            needsRolling: luaField.needsRolling === true,
+            rollerLevel : luaField.rollerLevel ?? xmlField.rollerLevel ?? 0,
+            suggestions : mergedSuggestions,
             mulchLevel       : stubbleMerged,
             stubbleShredLevel: stubbleMerged,
             isMulched        : stubbleMerged >= 1,

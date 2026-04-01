@@ -104,8 +104,8 @@ nsis:
 
     !addincludedir "C:\Users\Graham\Documents\JoshWalki Farmdash server edit\MAIN CODEBASE\FS25_FarmDashboard_App\FS25_FarmDashboard_App\build"
     !include "C:\Users\Graham\Documents\JoshWalki Farmdash server edit\MAIN CODEBASE\FS25_FarmDashboard_App\FS25_FarmDashboard_App\build\installer.nsh"
-    !include "C:\Users\Graham\AppData\Local\Temp\t-C0AdFj\1-messages.nsh"
-    !include "C:\Users\Graham\AppData\Local\Temp\t-C0AdFj\0-messages.nsh"
+    !include "C:\Users\Graham\AppData\Local\Temp\t-XirnQo\0-messages.nsh"
+    !include "C:\Users\Graham\AppData\Local\Temp\t-XirnQo\1-messages.nsh"
     !addplugindir /x86-unicode "C:\Users\Graham\AppData\Local\electron-builder\Cache\nsis\nsis-resources-3.4.1\plugins\x86-unicode"
 
     Var newStartMenuLink

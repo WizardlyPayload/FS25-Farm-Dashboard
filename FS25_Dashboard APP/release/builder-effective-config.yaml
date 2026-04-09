@@ -13,7 +13,7 @@ files:
       - web/**/*
       - node_modules/**/*
 extraResources:
-  - from: ../../tools/Export-ModStoreImages.ps1
+  - from: ../tools/Export-ModStoreImages.ps1
     to: tools/Export-ModStoreImages.ps1
   - from: build/install-imagemagick.ps1
     to: install-imagemagick.ps1

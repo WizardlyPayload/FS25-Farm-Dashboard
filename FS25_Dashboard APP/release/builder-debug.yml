@@ -29,8 +29,8 @@ x64:
     - node_modules/**/*
 nsis:
   script: |-
-    !include "C:\Users\Graham\Documents\JoshWalki Farmdash server edit\MAIN CODEBASE\FS25_FarmDashboard_App\FS25_FarmDashboard_App\node_modules\app-builder-lib\templates\nsis\include\StdUtils.nsh"
-    !addincludedir "C:\Users\Graham\Documents\JoshWalki Farmdash server edit\MAIN CODEBASE\FS25_FarmDashboard_App\FS25_FarmDashboard_App\node_modules\app-builder-lib\templates\nsis\include"
+    !include "C:\Users\Graham\Documents\FS25-Farm-Dashboard\FS25_Dashboard APP\node_modules\app-builder-lib\templates\nsis\include\StdUtils.nsh"
+    !addincludedir "C:\Users\Graham\Documents\FS25-Farm-Dashboard\FS25_Dashboard APP\node_modules\app-builder-lib\templates\nsis\include"
     !macro _isUpdated _a _b _t _f
       ${StdUtils.TestParameter} $R9 "updated"
       StrCmp "$R9" "true" `${_t}` `${_f}`
@@ -102,10 +102,10 @@ nsis:
       !insertmacro MUI_LANGUAGE "Vietnamese"
     !macroend
 
-    !addincludedir "C:\Users\Graham\Documents\JoshWalki Farmdash server edit\MAIN CODEBASE\FS25_FarmDashboard_App\FS25_FarmDashboard_App\build"
-    !include "C:\Users\Graham\Documents\JoshWalki Farmdash server edit\MAIN CODEBASE\FS25_FarmDashboard_App\FS25_FarmDashboard_App\build\installer.nsh"
-    !include "C:\Users\Graham\AppData\Local\Temp\t-XirnQo\0-messages.nsh"
-    !include "C:\Users\Graham\AppData\Local\Temp\t-XirnQo\1-messages.nsh"
+    !addincludedir "C:\Users\Graham\Documents\FS25-Farm-Dashboard\FS25_Dashboard APP\build"
+    !include "C:\Users\Graham\Documents\FS25-Farm-Dashboard\FS25_Dashboard APP\build\installer.nsh"
+    !include "C:\Users\Graham\AppData\Local\Temp\t-PRGYYN\0-messages.nsh"
+    !include "C:\Users\Graham\AppData\Local\Temp\t-PRGYYN\1-messages.nsh"
     !addplugindir /x86-unicode "C:\Users\Graham\AppData\Local\electron-builder\Cache\nsis\nsis-resources-3.4.1\plugins\x86-unicode"
 
     Var newStartMenuLink

@@ -7,12 +7,10 @@ class RealtimeConnector {
   constructor(dashboard) {
     this.dashboard = dashboard;
     this.ws = null;
-    // Use dynamic endpoints based on current host
-    const protocol = window.location.protocol;
-    const hostname = window.location.hostname;
-    const wsProtocol = protocol === "https:" ? "wss:" : "ws:";
-    this.httpEndpoint = `${protocol}//${hostname}:8766`;
-    this.wsEndpoint = `${wsProtocol}//${hostname}:8766`; // WebSocket uses same port as HTTP
+    // Same host:port as the page (localhost, LAN IP, etc.) — required for phone/tablet browsers
+    const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    this.httpEndpoint = window.location.origin;
+    this.wsEndpoint = `${wsProtocol}//${window.location.host}`;
     this.isConnected = false;
     this.reconnectInterval = 5000;
     this.reconnectTimer = null;

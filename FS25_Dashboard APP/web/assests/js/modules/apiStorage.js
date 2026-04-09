@@ -40,6 +40,18 @@ window.WebSocket = function(url, protocols) {
 };
 
 export function getAPIBaseURL() {
+  try {
+    if (
+      typeof window !== "undefined" &&
+      window.location &&
+      window.location.protocol &&
+      window.location.protocol.startsWith("http")
+    ) {
+      return window.location.origin;
+    }
+  } catch (e) {
+    /* ignore */
+  }
   return "http://127.0.0.1:8766";
 }
 

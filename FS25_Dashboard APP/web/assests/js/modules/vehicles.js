@@ -1832,7 +1832,9 @@ export async function loadVehicles() {
     const base =
       typeof window !== "undefined" && window.dashboard?.getAPIBaseURL
         ? window.dashboard.getAPIBaseURL()
-        : "http://127.0.0.1:8766";
+        : window.location?.protocol?.startsWith("http")
+          ? window.location.origin
+          : "http://127.0.0.1:8766";
     const response = await fetch(`${base}/api/vehicles`);
     if (response.ok) {
       const allVehicles = await response.json();

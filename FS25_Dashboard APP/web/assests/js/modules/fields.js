@@ -92,7 +92,12 @@ async function loadFieldsData() {
     fieldsIsLoading = true;
 
     try {
-        const apiBase   = window.dashboard?.getAPIBaseURL?.() ?? "http://127.0.0.1:8766";
+        const apiBase =
+          window.dashboard?.getAPIBaseURL?.() ??
+          (typeof window !== "undefined" &&
+          window.location?.protocol?.startsWith("http")
+            ? window.location.origin
+            : "http://127.0.0.1:8766");
         const serverId  = window.dashboard?.activeServerId;
         const farmId    = window.dashboard?.activeFarmId ?? 1;
 

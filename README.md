@@ -77,7 +77,8 @@ Save the settings. The main dashboard will load and start polling for data.
 ## 4. Using the dashboard
 
 - On the PC running the app, open **http://localhost:8766** (or the URL shown by the app).
-- **From another device on the same network** (phone, tablet, second PC), open **`http://<this-computer’s-LAN-IP>:8766`** — the server listens on all interfaces. There is **no login**; anyone who can reach that port on your network can see the same dashboard data. Use a firewall on untrusted networks; see [docs/SECURITY.md](docs/SECURITY.md).
+- **From a tablet, phone, or second PC on the same Wi‑Fi or LAN**, open **`http://<this-computer’s-LAN-IPv4>:8766`** in the device’s web browser — the app binds to **all interfaces** (`0.0.0.0`), not only localhost. Find the PC’s address with **`ipconfig`** on Windows (IPv4 under your active Wi‑Fi or Ethernet adapter). Step-by-step: [INSTALL.md](INSTALL.md) (“Tablet or phone on the same network”).
+- There is **no login**; anyone who can reach **TCP port 8766** on that PC can see the same dashboard data. Use a firewall on untrusted networks; see [docs/SECURITY.md](docs/SECURITY.md).
 - Use the navigation (livestock, fields, vehicles, economy, productions, pastures, etc.).
 - For **multi-farm** or FTP servers, use the **farm selector** in the header when available.
 
@@ -163,6 +164,7 @@ Check **“Set as latest release”** if appropriate, then **Publish release**.
 | Dashboard says “waiting for data” | Ensure FS25 ran with the mod enabled; check Setup paths or FTP. |
 | Nothing on FTP | Confirm FTP credentials, `profile` path, and savegame slot match the server. |
 | Port 8766 in use | Close the other program or restart the PC after closing old instances of the app. |
+| Tablet/phone cannot open the dashboard | PC and device must be on the same network; use **`http://<PC-IPv4>:8766`** (not `localhost` on the tablet). Confirm the app is running. Allow the app through **Windows Firewall** on **Private** networks. See [INSTALL.md](INSTALL.md) and [docs/SECURITY.md](docs/SECURITY.md). |
 
 ---
 

@@ -9,7 +9,7 @@
 ## What it does
 
 - Connects to the FS25 Farm Dashboard mod data (local `modSettings` paths or FTP to a dedicated server).
-- Serves a web UI (Electron + Express on port **8766**) with live stock, vehicles, fields, economy, pastures, productions, weather, and notifications.
+- Serves a web UI (Electron + Express on port **8766**, bound to **`0.0.0.0`**) with live stock, vehicles, fields, economy, pastures, productions, weather, and notifications. A **tablet or phone on the same LAN** can use **`http://<PC-IPv4>:8766`** in a browser; see repo root **[INSTALL.md](../INSTALL.md)** and **[docs/SECURITY.md](../docs/SECURITY.md)**.
 - Optional **mod shop image import**: scans your FS25 mods folder, exports PNGs and converts `icon_*.dds` for dashboard thumbnails (uses **ImageMagick** / **texconv** when available).
 
 ---

@@ -62,10 +62,10 @@ The mod has **no dedicated dashboard panel inside FS25**. For documentation, use
 
 A **Windows desktop program** that:
 
-- Hosts a **local HTTP API** (default port **8766**) and **WebSocket** updates
+- Hosts a **local HTTP API** (default port **8766**, reachable on the **LAN** from a tablet or phone browser) and **WebSocket** updates
 - Reads **`data.json`** from disk **or** via **FTP** (hosted / GPortal-style servers)
 - Merges **live Lua JSON** with **savegame XML** (fields, farmlands, economy, vehicles, etc.) when XML is available
-- Opens an embedded or external **browser UI** at **`http://localhost:8766`**
+- Opens an embedded or external **browser UI** at **`http://localhost:8766`** on the PC; other devices use **`http://<PC-LAN-IP>:8766`** (see [INSTALL.md](../INSTALL.md))
 
 First-time **Server Manager** screen: **`setup.html`** (local paths, FTP, multi-server).
 
@@ -93,7 +93,7 @@ Two different “schedules” are involved (see [CHANGELOG.md §2.0.0 — **G** 
 
 ## Part C — Web dashboard pages (inside the app)
 
-Open **`http://localhost:8766`** after the app is running and data is flowing.
+On the PC, open **`http://localhost:8766`** after the app is running and data is flowing. On a **tablet or phone on the same network**, use **`http://<PC-IPv4>:8766`** ([INSTALL.md](../INSTALL.md)).
 
 | Section | URL hash | Suggested filename | What to show |
 |---------|----------|-------------------|--------------|
@@ -162,7 +162,7 @@ Commit the `docs/screenshots/*.png` files to git, or attach them to **GitHub Rel
 
 ## One-paragraph “store” description (copy-paste)
 
-**FS25 Farm Dashboard** pairs a lightweight **Farming Simulator 25 mod** with a **Windows desktop app**. The mod exports live farm data from your save or server to `data.json`; the app serves a rich **browser dashboard** on your PC—livestock, vehicles, fields (with Precision Farming context), economy, pastures, and production chains—with optional **FTP** support for dedicated hosts. Install the mod, load your save once, then install the desktop app and open **http://localhost:8766** to manage your operation from a second screen.
+**FS25 Farm Dashboard** pairs a lightweight **Farming Simulator 25 mod** with a **Windows desktop app**. The mod exports live farm data from your save or server to `data.json`; the app serves a rich **browser dashboard** on your PC—livestock, vehicles, fields (with Precision Farming context), economy, pastures, and production chains—with optional **FTP** support for dedicated hosts. Install the mod, load your save once, then install the desktop app and open **http://localhost:8766** on the PC (or **`http://<PC-LAN-IP>:8766`** on a tablet on the same Wi‑Fi—see [INSTALL.md](../INSTALL.md)) to manage your operation from a second screen.
 
 ---
 

@@ -8,6 +8,6 @@
 | [DESCRIPTION_AND_SCREENSHOTS.md](./DESCRIPTION_AND_SCREENSHOTS.md) | Long-form product description, UI surface list, screenshot filenames for GitHub / releases. |
 | [../README.md](../README.md) | Install order, build, troubleshooting, repository layout (start here for users). |
 | [../AUTHORS.md](../AUTHORS.md) | **JoshWalki** (Josh) and **WizardlyPayload** — project authors. |
-| [../INSTALL.md](../INSTALL.md) | **Step-by-step install** (mod in every save first, then the app). |
+| [../INSTALL.md](../INSTALL.md) | **Step-by-step install** (mod in every save first, then the app), including **tablet/phone on the same network** (`http://<PC-LAN-IP>:8766`). |
 
 The **authoritative version numbers** for the app and mod are in `FS25_FarmDashboard_App/FS25_FarmDashboard_App/package.json` and `FS25_FarmDashboard_Mod/FS25_FarmDashboard_Mod/modDesc.xml`, summarized in the changelog.

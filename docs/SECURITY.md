@@ -8,12 +8,14 @@ This document describes how the **desktop app** exposes data, what is **not** pr
 
 ## Network: browser access on your LAN (important)
 
-The app binds the HTTP server to **`0.0.0.0` on port `8766`**, not only `127.0.0.1`.
+The app binds the HTTP server to **`0.0.0.0` on port `8766`**, not only `127.0.0.1`. That means a **tablet or phone browser on the same Wi‑Fi** can load the dashboard by using the **PC’s LAN IPv4 address**, not `localhost` (on the tablet, `localhost` would mean the tablet itself).
 
 | Access | Typical URL |
 |--------|-------------|
 | Same PC | `http://localhost:8766` |
-| Phone / tablet / another PC **on the same network** | `http://<this-PCs-LAN-IP>:8766` (e.g. `http://192.168.1.50:8766`) |
+| Phone / tablet / another PC **on the same network** | `http://<this-PCs-LAN-IPv4>:8766` (e.g. `http://192.168.1.50:8766`) — find the IPv4 with **`ipconfig`** on Windows under the active adapter |
+
+User-facing steps (same network, firewall, examples) are also in the root **[INSTALL.md](../INSTALL.md)**.
 
 **CORS** is enabled for the API routes so a normal browser can load the dashboard from that origin.
 
